@@ -1,0 +1,121 @@
+'use client'
+
+import { useState, useEffect, use } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { QRCodeSVG } from 'qrcode.react'
+
+type Participant = { id: string; name: string; is_host: boolean }
+
+export default function LobbyPage({ params }: { params: Promise<{ sessionId: string }> }) {
+  const { sessionId } = use(params)
+  const router = useRouter()
+  const [participants, setParticipants] = useState<Participant[]>([])
+  const [joinUrl, setJoinUrl] = useState('')
+  const [code, setCode] = useState('')
+  const [starting, setStarting] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+
+    async function init() {
+      // Get the session code
+      const { data: session } = await supabase
+        .from('sessions')
+        .select('code')
+        .eq('id', sessionId)
+        .single()
+
+      if (session) {
+        setCode(session.code)
+        setJoinUrl(`${window.location.origin}/join/${session.code}`)
+      }
+
+      // Load current participants
+      const { data } = await supabase
+        .from('participants')
+        .select('id, name, is_host')
+        .eq('session_id', sessionId)
+        .order('joined_at')
+
+      setParticipants(data ?? [])
+
+      // Subscribe to new participants joining in real time
+      const channel = supabase
+        .channel(`lobby:${sessionId}`)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'participants', filter: `session_id=eq.${sessionId}` },
+          payload => {
+            setParticipants(prev => [...prev, payload.new as Participant])
+          }
+        )
+        .subscribe()
+
+      return () => { supabase.removeChannel(channel) }
+    }
+
+    init()
+  }, [sessionId])
+
+  async function handleStart() {
+    setStarting(true)
+    const res = await fetch(`/api/sessions/${sessionId}/start`, { method: 'POST' })
+    if (res.ok) {
+      router.push(`/sessions/${sessionId}/vote`)
+    } else {
+      setStarting(false)
+    }
+  }
+
+  const guestCount = participants.filter(p => !p.is_host).length
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-white px-4 py-8">
+      <div className="max-w-md mx-auto">
+        <h1 className="text-2xl font-bold mb-1">Game Night Lobby</h1>
+        <p className="text-gray-400 text-sm mb-8">Share the QR code or join code with your friends.</p>
+
+        {/* QR code */}
+        {joinUrl && (
+          <div className="bg-white rounded-2xl p-5 flex flex-col items-center mb-6">
+            <QRCodeSVG value={joinUrl} size={200} />
+            <p className="text-gray-800 font-mono text-2xl font-bold tracking-widest mt-4">{code}</p>
+            <p className="text-gray-500 text-xs mt-1">or visit {joinUrl}</p>
+          </div>
+        )}
+
+        {/* Participants list */}
+        <div className="bg-gray-800 rounded-xl p-4 mb-6">
+          <h2 className="font-semibold mb-3">
+            Players joined — <span className="text-indigo-400">{participants.length}</span>
+          </h2>
+          <ul className="space-y-2">
+            {participants.map(p => (
+              <li key={p.id} className="flex items-center gap-2 text-sm">
+                <span className="w-2 h-2 rounded-full bg-green-400 inline-block" />
+                {p.name}
+                {p.is_host && <span className="text-xs text-gray-400">(host)</span>}
+              </li>
+            ))}
+          </ul>
+          {guestCount === 0 && (
+            <p className="text-gray-500 text-sm mt-2">Waiting for players to join...</p>
+          )}
+        </div>
+
+        {/* Start button */}
+        <button
+          onClick={handleStart}
+          disabled={starting || guestCount === 0}
+          className="w-full py-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 rounded-xl font-semibold transition-colors"
+        >
+          {starting ? 'Starting...' : `Start Voting (${participants.length} player${participants.length !== 1 ? 's' : ''})`}
+        </button>
+        {guestCount === 0 && (
+          <p className="text-center text-gray-500 text-xs mt-2">Need at least 1 guest to start</p>
+        )}
+      </div>
+    </div>
+  )
+}
