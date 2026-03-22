@@ -58,11 +58,28 @@ export async function POST(
     .eq('participant_id', participantId)
     .eq('session_id', sessionId)
 
-  // Count total games in this session
-  const { count: gameCount } = await supabase
+  // Count eligible games — respects player_count filter same as the vote page
+  const { data: sessionRow } = await supabase
+    .from('sessions')
+    .select('player_count')
+    .eq('id', sessionId)
+    .single()
+
+  const playerCount = sessionRow?.player_count ?? 0
+
+  let eligibleQuery = supabase
     .from('session_games')
-    .select('*', { count: 'exact', head: true })
+    .select('id')
     .eq('session_id', sessionId)
+
+  if (playerCount > 0) {
+    eligibleQuery = eligibleQuery
+      .lte('min_players', playerCount)
+      .gte('max_players', playerCount)
+  }
+
+  const { data: eligibleGames } = await eligibleQuery
+  const gameCount = eligibleGames?.length ?? 0
 
   const myDone = (voteCount ?? 0) >= (gameCount ?? 0)
 

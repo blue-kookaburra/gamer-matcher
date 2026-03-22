@@ -86,7 +86,7 @@ export default function NewSessionPage() {
     setCreating(true)
     setError('')
 
-    const selectedGames = games.filter(g => selected.has(g.bggId))
+    const selectedGames = visibleGames.filter(g => selected.has(g.bggId))
 
     const res = await fetch('/api/sessions', {
       method: 'POST',

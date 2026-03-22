@@ -38,8 +38,10 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
     )
   }
 
-  const winner = games[0]
-  const rest = games.slice(1)
+  const topYes = games[0]?.yesCount ?? 0
+  const topMaybe = games[0]?.maybeCount ?? 0
+  const winners = games.filter(g => g.yesCount === topYes && g.maybeCount === topMaybe)
+  const rest = games.filter(g => !(g.yesCount === topYes && g.maybeCount === topMaybe))
 
   return (
     <div className="min-h-screen bg-gray-950 text-white px-4 py-8">
@@ -47,27 +49,31 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
         <h1 className="text-2xl font-bold text-center mb-1">Results</h1>
         <p className="text-gray-400 text-center text-sm mb-8">Ranked by yes votes</p>
 
-        {/* Winner */}
-        {winner && (
-          <div className="bg-indigo-950 border-2 border-indigo-500 rounded-2xl overflow-hidden mb-6">
-            <div className="bg-indigo-600 text-center py-2 text-sm font-bold tracking-wide">
-              🏆 TONIGHT&apos;S GAME
-            </div>
-            {winner.imageUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={winner.imageUrl}
-                alt={winner.title}
-                className="w-full h-56 object-contain bg-gray-900"
-              />
-            )}
-            <div className="p-4">
-              <h2 className="text-xl font-bold mb-1">{winner.title}</h2>
-              <p className="text-gray-400 text-sm mb-3">
-                {winner.minPlayers}–{winner.maxPlayers} players · {winner.playTime} min
-              </p>
-              <VoteCounts yes={winner.yesCount} maybe={winner.maybeCount} no={winner.noCount} />
-            </div>
+        {/* Winner(s) */}
+        {winners.length > 0 && (
+          <div className="mb-6 space-y-4">
+            {winners.map(winner => (
+              <div key={winner.gameId} className="bg-indigo-950 border-2 border-indigo-500 rounded-2xl overflow-hidden">
+                <div className="bg-indigo-600 text-center py-2 text-sm font-bold tracking-wide">
+                  {winners.length === 1 ? "🏆 TONIGHT'S GAME" : "🏆 IT'S A TIE!"}
+                </div>
+                {winner.imageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={winner.imageUrl}
+                    alt={winner.title}
+                    className="w-full h-56 object-contain bg-gray-900"
+                  />
+                )}
+                <div className="p-4">
+                  <h2 className="text-xl font-bold mb-1">{winner.title}</h2>
+                  <p className="text-gray-400 text-sm mb-3">
+                    {winner.minPlayers}–{winner.maxPlayers} players · {winner.playTime} min
+                  </p>
+                  <VoteCounts yes={winner.yesCount} maybe={winner.maybeCount} no={winner.noCount} />
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
