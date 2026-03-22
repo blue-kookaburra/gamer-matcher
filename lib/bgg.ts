@@ -26,6 +26,7 @@ export function parseCollection(xml: string): BGGGame[] {
 
   return itemArray
     .filter((item: any) => item?.status?.['@_own'] === '1') // only owned games
+    .filter((item: any) => item['@_subtype'] !== 'boardgameexpansion') // exclude expansions
     .map((item: any) => {
       const stats = item.stats
       const rating = stats?.rating
@@ -51,6 +52,7 @@ export function parseCollectionCSV(csvText: string): BGGGame[] {
 
   return rows
     .filter(row => row.own === '1')
+    .filter(row => row.subtype !== 'boardgameexpansion') // exclude expansions
     .map(row => ({
       bggId: row.objectid ?? '',
       title: row.objectname ?? 'Unknown',

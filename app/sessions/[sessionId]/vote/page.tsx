@@ -1,18 +1,19 @@
 'use client'
 
-import { useState, useEffect, useCallback, use } from 'react'
+import { useState, useEffect, useCallback, useRef, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 
 type SessionGame = {
-  id: string       // UUID primary key of session_games row — used for vote submission
-  gameId: string   // bgg_game_id — used for display/dedup
+  id: string
+  gameId: string
   title: string
   imageUrl: string
   minPlayers: number
   maxPlayers: number
   playTime: number
+  complexity: number
 }
 
 export default function VotePage({ params }: { params: Promise<{ sessionId: string }> }) {
@@ -23,8 +24,8 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
   const [participantId, setParticipantId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [waiting, setWaiting] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const votingRef = useRef(false) // ref-based lock: doesn't disable buttons visually
 
   useEffect(() => {
     async function init() {
@@ -48,15 +49,24 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
 
       setParticipantId(pid)
 
-      // Load games for this session
-      const { data } = await supabase
-        .from('session_games')
-        .select('id, bgg_game_id, title, image_url, min_players, max_players, play_time')
-        .eq('session_id', sessionId)
-        .order('display_order')
+      // Fetch session player count and games in parallel
+      const [{ data: sessionData }, { data: gamesData }] = await Promise.all([
+        supabase.from('sessions').select('player_count').eq('id', sessionId).single(),
+        supabase
+          .from('session_games')
+          .select('id, bgg_game_id, title, image_url, min_players, max_players, play_time, complexity')
+          .eq('session_id', sessionId)
+          .order('display_order'),
+      ])
 
-      setGames(
-        (data ?? []).map(g => ({
+      const playerCount = sessionData?.player_count ?? 0
+
+      const filtered = (gamesData ?? [])
+        .filter(g => {
+          if (playerCount === 0) return true // fallback: show all if count unknown
+          return (g.min_players ?? 1) <= playerCount && (g.max_players ?? 99) >= playerCount
+        })
+        .map(g => ({
           id: g.id,
           gameId: g.bgg_game_id,
           title: g.title,
@@ -64,9 +74,10 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
           minPlayers: g.min_players ?? 1,
           maxPlayers: g.max_players ?? 99,
           playTime: g.play_time ?? 0,
+          complexity: g.complexity ?? 0,
         }))
-      )
 
+      setGames(filtered)
       setLoading(false)
     }
 
@@ -99,30 +110,26 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
   }, [sessionId, router])
 
   async function submitVote(vote: 'yes' | 'maybe' | 'no') {
-    if (submitting || !participantId || index >= games.length) return
-    setSubmitting(true)
+    if (votingRef.current || !participantId || index >= games.length) return
+    votingRef.current = true
 
     const game = games[index]
     setIndex(prev => prev + 1)
+    votingRef.current = false // release before await — next card is immediately swipeable
 
-    const res = await fetch(`/api/sessions/${sessionId}/vote`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ participantId, bggGameId: game.gameId, vote }),
-    })
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ participantId, bggGameId: game.gameId, vote }),
+      })
 
-    const data = await res.json()
-    setSubmitting(false)
-
-    if (!res.ok) {
-      setError(`Vote failed: ${data.error ?? 'unknown error'}`)
-      return
-    }
-
-    if (data.allDone) {
-      router.push(`/sessions/${sessionId}/results`)
-    } else if (data.myDone) {
-      startWaiting()
+      const data = await res.json()
+      if (!res.ok) { setError(`Vote failed: ${data.error ?? 'unknown error'}`); return }
+      if (data.allDone) router.push(`/sessions/${sessionId}/results`)
+      else if (data.myDone) startWaiting()
+    } catch {
+      // ignore mid-session network errors
     }
   }
 
@@ -156,7 +163,6 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
   }
 
   if (index >= games.length) {
-    // Briefly visible while the last API call is in-flight
     return (
       <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
         <p className="text-gray-400">Finishing up...</p>
@@ -191,8 +197,8 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
             <div className="absolute inset-0 bg-gray-800 rounded-2xl scale-95 translate-y-2 opacity-60" />
           )}
 
-          {/* Current card */}
-          <AnimatePresence mode="wait">
+          {/* Current card — sync AnimatePresence (no mode="wait") so next card enters immediately */}
+          <AnimatePresence>
             <SwipeCard
               key={game.gameId}
               game={game}
@@ -202,28 +208,25 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
         </div>
       </div>
 
-      {/* Vote buttons */}
+      {/* Vote buttons — never disabled so always responsive */}
       <div className="flex gap-6 items-center pb-4">
         <button
           onClick={() => submitVote('no')}
-          disabled={submitting}
-          className="w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 disabled:opacity-50 flex items-center justify-center text-2xl shadow-lg transition-colors"
+          className="w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 flex items-center justify-center text-2xl shadow-lg transition-colors"
           title="No"
         >
           ✗
         </button>
         <button
           onClick={() => submitVote('maybe')}
-          disabled={submitting}
-          className="w-12 h-12 rounded-full bg-gray-600 hover:bg-gray-500 disabled:opacity-50 flex items-center justify-center text-xl shadow-lg transition-colors"
+          className="w-12 h-12 rounded-full bg-gray-600 hover:bg-gray-500 flex items-center justify-center text-xl shadow-lg transition-colors"
           title="Maybe"
         >
           ~
         </button>
         <button
           onClick={() => submitVote('yes')}
-          disabled={submitting}
-          className="w-16 h-16 rounded-full bg-green-600 hover:bg-green-700 disabled:opacity-50 flex items-center justify-center text-2xl shadow-lg transition-colors"
+          className="w-16 h-16 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center text-2xl shadow-lg transition-colors"
           title="Yes"
         >
           ✓
@@ -258,8 +261,6 @@ function SwipeCard({
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.8}
       onDragEnd={handleDragEnd}
-      initial={{ scale: 0.95, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
       exit={{ scale: 0.9, opacity: 0 }}
       transition={{ duration: 0.15 }}
     >
@@ -304,6 +305,11 @@ function SwipeCard({
         <p className="text-gray-400 text-sm">
           {game.minPlayers}–{game.maxPlayers} players · {game.playTime} min
         </p>
+        {game.complexity > 0 && (
+          <p className="text-gray-500 text-xs mt-0.5">
+            Complexity {game.complexity.toFixed(1)}/5
+          </p>
+        )}
       </div>
 
       {/* Swipe hint */}
