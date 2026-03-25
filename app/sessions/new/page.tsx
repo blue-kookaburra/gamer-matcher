@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { BGGGame } from '@/lib/bgg'
 
@@ -15,6 +16,11 @@ export default function NewSessionPage() {
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState('')
+  const [showCustomForm, setShowCustomForm] = useState(false)
+  const [customTitle, setCustomTitle] = useState('')
+  const [customMin, setCustomMin] = useState('')
+  const [customMax, setCustomMax] = useState('')
+  const [customComplexity, setCustomComplexity] = useState('')
 
   useEffect(() => {
     async function loadCollection() {
@@ -81,6 +87,28 @@ export default function NewSessionPage() {
     })
   }
 
+  function addCustomGame(e: React.FormEvent) {
+    e.preventDefault()
+    if (!customTitle.trim()) return
+    const game: BGGGame = {
+      bggId: `custom-${Date.now()}`,
+      title: customTitle.trim(),
+      imageUrl: '',
+      description: '',
+      minPlayers: customMin ? Number(customMin) : 1,
+      maxPlayers: customMax ? Number(customMax) : 99,
+      playTime: 0,
+      complexity: customComplexity ? Number(customComplexity) : 0,
+    }
+    setGames(prev => [...prev, game])
+    setSelected(prev => new Set([...prev, game.bggId]))
+    setCustomTitle('')
+    setCustomMin('')
+    setCustomMax('')
+    setCustomComplexity('')
+    setShowCustomForm(false)
+  }
+
   async function handleCreate() {
     if (selected.size === 0) { setError('Select at least one game.'); return }
     setCreating(true)
@@ -111,6 +139,9 @@ export default function NewSessionPage() {
   return (
     <div className="min-h-screen bg-gray-950 text-white px-4 py-8">
       <div className="max-w-2xl mx-auto">
+        <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-white mb-4">
+          ← Back to Dashboard
+        </Link>
         <h1 className="text-2xl font-bold mb-1">New Game Night Session</h1>
         <p className="text-gray-400 text-sm mb-6">
           Choose which games to include. Only games that support the right player count will show during voting.
@@ -214,6 +245,10 @@ export default function NewSessionPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
           {visibleGames.map(game => {
             const isSelected = selected.has(game.bggId)
+            const isCustom = game.bggId.startsWith('custom-')
+            const playersLabel = (game.minPlayers === 1 && game.maxPlayers === 99)
+              ? 'Any players'
+              : `${game.minPlayers}–${game.maxPlayers}p`
             return (
               <button
                 key={game.bggId}
@@ -224,20 +259,91 @@ export default function NewSessionPage() {
                     : 'border-gray-700 bg-gray-800 opacity-50'
                 }`}
               >
-                {game.imageUrl && (
+                {game.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={game.imageUrl} alt={game.title} className="w-full aspect-square object-contain rounded mb-2" />
-                )}
+                ) : isCustom ? (
+                  <div className="w-full aspect-square rounded mb-2 bg-gray-700 flex items-center justify-center text-3xl">🎲</div>
+                ) : null}
                 <p className="text-sm font-medium leading-tight">{game.title}</p>
                 <p className="text-xs text-gray-400 mt-1">
-                  {game.minPlayers}–{game.maxPlayers}p · {game.playTime}min
+                  {playersLabel}{game.playTime > 0 ? ` · ${game.playTime}min` : ''}
                 </p>
                 {game.complexity > 0 && (
-                  <p className="text-xs text-gray-500 mt-0.5">★ {game.complexity.toFixed(1)}/5</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Complexity {game.complexity.toFixed(1)}/5.0</p>
                 )}
+                {isCustom && <p className="text-xs text-indigo-400 mt-0.5">Custom</p>}
               </button>
             )
           })}
+
+          {/* Add custom game card */}
+          {!showCustomForm ? (
+            <button
+              onClick={() => setShowCustomForm(true)}
+              className="rounded-lg p-3 border-2 border-dashed border-gray-700 bg-gray-800/40 hover:border-indigo-500 hover:bg-indigo-950/20 transition-colors flex flex-col items-center justify-center min-h-[100px] gap-1"
+            >
+              <span className="text-2xl text-gray-600">+</span>
+              <p className="text-xs text-gray-500">Add custom game</p>
+            </button>
+          ) : (
+            <form onSubmit={addCustomGame} className="rounded-lg p-3 border-2 border-indigo-500 bg-indigo-950/30 space-y-2">
+              <input
+                type="text"
+                value={customTitle}
+                onChange={e => setCustomTitle(e.target.value)}
+                placeholder="Title *"
+                required
+                autoFocus
+                className="w-full px-2 py-1 rounded bg-gray-700 text-white text-xs border border-gray-600 focus:outline-none focus:border-indigo-500"
+              />
+              <div className="flex gap-1">
+                <input
+                  type="number"
+                  value={customMin}
+                  onChange={e => setCustomMin(e.target.value)}
+                  placeholder="Min p."
+                  min={1}
+                  max={20}
+                  className="w-1/2 px-2 py-1 rounded bg-gray-700 text-white text-xs border border-gray-600 focus:outline-none focus:border-indigo-500"
+                />
+                <input
+                  type="number"
+                  value={customMax}
+                  onChange={e => setCustomMax(e.target.value)}
+                  placeholder="Max p."
+                  min={1}
+                  max={20}
+                  className="w-1/2 px-2 py-1 rounded bg-gray-700 text-white text-xs border border-gray-600 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+              <input
+                type="number"
+                value={customComplexity}
+                onChange={e => setCustomComplexity(e.target.value)}
+                placeholder="Complexity (1–5)"
+                min={1}
+                max={5}
+                step={0.1}
+                className="w-full px-2 py-1 rounded bg-gray-700 text-white text-xs border border-gray-600 focus:outline-none focus:border-indigo-500"
+              />
+              <div className="flex gap-1">
+                <button
+                  type="submit"
+                  className="flex-1 py-1 bg-indigo-600 hover:bg-indigo-700 rounded text-xs font-semibold transition-colors"
+                >
+                  Add
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setShowCustomForm(false); setCustomTitle(''); setCustomMin(''); setCustomMax(''); setCustomComplexity('') }}
+                  className="flex-1 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
         </div>
 
         <button

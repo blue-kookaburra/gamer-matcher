@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Outfit, Libre_Caslon_Text } from 'next/font/google'
 import './globals.css'
+import SessionGuard from './components/SessionGuard'
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -29,7 +30,10 @@ export default function RootLayout({
       lang="en"
       className={`${outfit.variable} ${libreCaslon.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <SessionGuard />
+        {children}
+      </body>
     </html>
   )
 }
