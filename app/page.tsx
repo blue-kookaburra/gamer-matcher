@@ -2,22 +2,28 @@ import Link from 'next/link'
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 text-center">
-      <h1 className="text-5xl font-bold mb-4">🎲 Gamer Matcher</h1>
-      <p className="text-gray-400 text-lg max-w-md mb-10">
-        Stop arguing about what to play. Let everyone vote on game night — Tinder-style.
+    <div className="hero-bg min-h-screen text-white flex flex-col items-center justify-center px-4 text-center">
+      <p className="font-display text-xs font-semibold uppercase tracking-widest text-gray-500 mb-6">
+        Gamer Matcher
+      </p>
+      <h1 className="font-display text-6xl sm:text-7xl font-black tracking-tight leading-none mb-6">
+        <span className="text-brand">Game Night,</span>
+        <br />Decided.
+      </h1>
+      <p className="text-gray-400 text-lg max-w-sm mb-10 leading-relaxed">
+        Stop arguing about what to play. Everyone votes — Tinder-style.
       </p>
 
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3">
         <Link
           href="/auth/signup"
-          className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold transition-colors"
+          className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold btn-glow"
         >
           Host a Game Night
         </Link>
         <Link
           href="/auth/login"
-          className="px-8 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl font-semibold transition-colors"
+          className="px-8 py-3 border border-white/20 hover:border-white/40 rounded-xl font-semibold transition-colors"
         >
           Sign In
         </Link>

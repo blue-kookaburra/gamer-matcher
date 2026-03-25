@@ -1,18 +1,23 @@
 import type { Metadata } from 'next'
-import { Outfit, Libre_Caslon_Text } from 'next/font/google'
+import { DM_Sans, Syne, Instrument_Serif } from 'next/font/google'
 import './globals.css'
 import SessionGuard from './components/SessionGuard'
 
-const outfit = Outfit({
+const dmSans = DM_Sans({
   subsets: ['latin'],
-  variable: '--font-outfit',
+  variable: '--font-dm-sans',
 })
 
-const libreCaslon = Libre_Caslon_Text({
+const syne = Syne({
   subsets: ['latin'],
-  weight: ['400', '700'],
+  variable: '--font-syne',
+})
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  weight: ['400'],
   style: ['normal', 'italic'],
-  variable: '--font-libre-caslon',
+  variable: '--font-instrument-serif',
 })
 
 export const metadata: Metadata = {
@@ -28,7 +33,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${outfit.variable} ${libreCaslon.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${syne.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <SessionGuard />

@@ -74,37 +74,37 @@ export default function LobbyPage({ params }: { params: Promise<{ sessionId: str
   return (
     <div className="min-h-screen bg-gray-950 text-white px-4 py-8">
       <div className="max-w-md mx-auto">
-        <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-white mb-4">
+        <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-white mb-6 transition-colors">
           ← Back to Dashboard
         </Link>
-        <h1 className="text-2xl font-bold mb-1">Game Night Lobby</h1>
-        <p className="text-gray-400 text-sm mb-8">Share the QR code or join code with your friends.</p>
+        <h1 className="font-display text-2xl font-bold tracking-tight mb-1">Game Night Lobby</h1>
+        <p className="text-gray-500 text-sm mb-8">Share the QR code or join code with your friends.</p>
 
         {/* QR code */}
         {joinUrl && (
-          <div className="bg-white rounded-2xl p-5 flex flex-col items-center mb-6">
+          <div className="bg-white rounded-2xl p-6 flex flex-col items-center mb-6 shadow-lg shadow-black/40">
             <QRCodeSVG value={joinUrl} size={200} />
-            <p className="text-gray-800 font-mono text-2xl font-bold tracking-widest mt-4">{code}</p>
-            <p className="text-gray-500 text-xs mt-1">or visit {joinUrl}</p>
+            <p className="font-display text-gray-900 font-black text-3xl tracking-widest mt-5">{code}</p>
+            <p className="text-gray-400 text-xs mt-1">{joinUrl}</p>
           </div>
         )}
 
         {/* Participants list */}
-        <div className="bg-gray-800 rounded-xl p-4 mb-6">
-          <h2 className="font-semibold mb-3">
-            Players joined — <span className="text-indigo-400">{participants.length}</span>
+        <div className="bg-gray-900 border border-white/5 rounded-xl p-4 mb-6">
+          <h2 className="font-display text-xs font-semibold uppercase tracking-widest text-gray-500 mb-3">
+            Players — <span className="text-indigo-400">{participants.length}</span>
           </h2>
           <ul className="space-y-2">
             {participants.map(p => (
               <li key={p.id} className="flex items-center gap-2 text-sm">
-                <span className="w-2 h-2 rounded-full bg-green-400 inline-block" />
+                <span className="w-2 h-2 rounded-full bg-green-400 inline-block flex-shrink-0" />
                 {p.name}
-                {p.is_host && <span className="text-xs text-gray-400">(host)</span>}
+                {p.is_host && <span className="text-xs text-gray-600">(host)</span>}
               </li>
             ))}
           </ul>
           {guestCount === 0 && (
-            <p className="text-gray-500 text-sm mt-2">Waiting for players to join...</p>
+            <p className="text-gray-600 text-sm mt-2">Waiting for players to join...</p>
           )}
         </div>
 
@@ -112,15 +112,15 @@ export default function LobbyPage({ params }: { params: Promise<{ sessionId: str
         <button
           onClick={handleStart}
           disabled={starting || guestCount === 0}
-          className="relative overflow-hidden w-full py-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 rounded-xl font-semibold transition-colors"
+          className="relative overflow-hidden w-full py-4 bg-green-600 hover:bg-green-700 disabled:opacity-40 rounded-xl font-display font-bold tracking-wide transition-colors"
         >
           <span className="relative z-10">
-            {starting ? 'Starting...' : `Start Voting (${participants.length} player${participants.length !== 1 ? 's' : ''})`}
+            {starting ? 'Starting...' : `Start Voting — ${participants.length} player${participants.length !== 1 ? 's' : ''}`}
           </span>
           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-5xl text-white/10 pointer-events-none select-none leading-none">🎮</span>
         </button>
         {guestCount === 0 && (
-          <p className="text-center text-gray-500 text-xs mt-2">Need at least 1 guest to start</p>
+          <p className="text-center text-gray-600 text-xs mt-2">Need at least 1 guest to start</p>
         )}
       </div>
     </div>

@@ -141,9 +141,9 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
   if (waiting) {
     return (
       <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 text-center">
-        <div className="text-6xl mb-6 animate-pulse">⏳</div>
-        <h1 className="text-2xl font-bold mb-2">All done!</h1>
-        <p className="text-gray-400">Waiting for everyone else to finish voting...</p>
+        <div className="text-5xl mb-6 animate-pulse">⏳</div>
+        <h1 className="font-display text-2xl font-bold mb-2">All done!</h1>
+        <p className="text-gray-500">Waiting for everyone else to finish voting...</p>
       </div>
     )
   }
@@ -174,13 +174,13 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
     <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-between px-4 py-8">
       {/* Progress bar */}
       <div className="w-full max-w-sm">
-        <div className="flex justify-between text-xs text-gray-400 mb-1">
-          <span>{index} of {games.length}</span>
+        <div className="flex justify-between text-xs text-gray-500 mb-2">
+          <span className="font-display font-semibold">{index} of {games.length}</span>
           <span>{progress}%</span>
         </div>
-        <div className="w-full bg-gray-800 rounded-full h-1.5">
+        <div className="w-full bg-gray-800 rounded-full h-1">
           <div
-            className="bg-indigo-500 h-1.5 rounded-full transition-all duration-300"
+            className="bg-indigo-500 h-1 rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -191,7 +191,7 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
         <div className="relative w-full max-w-sm">
           {/* Next card peeking behind */}
           {index + 1 < games.length && (
-            <div className="absolute inset-x-0 bottom-0 h-full bg-gray-800 rounded-2xl scale-95 translate-y-2 opacity-60" />
+            <div className="absolute inset-x-0 bottom-0 h-full bg-gray-900 rounded-2xl scale-95 translate-y-2 opacity-60" />
           )}
 
           <AnimatePresence>
@@ -204,33 +204,32 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
         </div>
       </div>
 
-      {/* Vote buttons — wider pills with ghost symbol */}
-      <div className="flex gap-3 w-full max-w-sm pb-2">
+      {/* Vote buttons */}
+      <div className="flex gap-2 w-full max-w-sm pb-2">
         <button
           onClick={() => submitVote('no')}
-          className="relative flex-1 h-14 rounded-2xl bg-red-950/80 border border-red-800/50 flex items-center justify-center overflow-hidden transition-colors hover:bg-red-950"
+          className="relative flex-1 h-14 rounded-2xl bg-red-950/80 border border-red-900/60 flex items-center justify-center overflow-hidden transition-colors hover:bg-red-950"
           title="No"
         >
-          <span className="relative z-10 text-red-300 font-semibold text-sm tracking-wide">✗ No</span>
-          <span className="absolute right-3 text-6xl text-red-500/10 leading-none pointer-events-none select-none">✗</span>
+          <span className="relative z-10 text-red-300 font-display font-semibold text-sm tracking-wide">✗ No</span>
+          <span className="absolute right-3 text-5xl text-red-500/8 leading-none pointer-events-none select-none">✗</span>
         </button>
 
         <button
           onClick={() => submitVote('maybe')}
-          className="relative w-16 h-14 rounded-2xl bg-gray-800 border border-gray-700/50 flex items-center justify-center overflow-hidden flex-shrink-0 transition-colors hover:bg-gray-700"
+          className="relative w-14 h-14 rounded-2xl bg-gray-800 border border-white/8 flex items-center justify-center overflow-hidden flex-shrink-0 transition-colors hover:bg-gray-700"
           title="Maybe"
         >
-          <span className="relative z-10 text-gray-300 font-semibold text-sm">~</span>
-          <span className="absolute right-2 text-5xl text-gray-500/10 leading-none pointer-events-none select-none">~</span>
+          <span className="relative z-10 text-gray-400 font-semibold text-base">~</span>
         </button>
 
         <button
           onClick={() => submitVote('yes')}
-          className="relative flex-1 h-14 rounded-2xl bg-green-950/80 border border-green-800/50 flex items-center justify-center overflow-hidden transition-colors hover:bg-green-950"
+          className="relative flex-1 h-14 rounded-2xl bg-green-950/80 border border-green-900/60 flex items-center justify-center overflow-hidden transition-colors hover:bg-green-950"
           title="Yes"
         >
-          <span className="relative z-10 text-green-300 font-semibold text-sm tracking-wide">✓ Yes</span>
-          <span className="absolute right-3 text-6xl text-green-500/10 leading-none pointer-events-none select-none">✓</span>
+          <span className="relative z-10 text-green-300 font-display font-semibold text-sm tracking-wide">✓ Yes</span>
+          <span className="absolute right-3 text-5xl text-green-500/8 leading-none pointer-events-none select-none">✓</span>
         </button>
       </div>
     </div>
@@ -256,7 +255,7 @@ function SwipeCard({
 
   return (
     <motion.div
-      className="relative bg-gray-800 rounded-2xl overflow-hidden cursor-grab active:cursor-grabbing shadow-xl select-none"
+      className="relative bg-gray-900 rounded-2xl overflow-hidden cursor-grab active:cursor-grabbing shadow-2xl shadow-black/60 select-none"
       style={{ x, rotate }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
@@ -301,7 +300,7 @@ function SwipeCard({
           </div>
         )}
         {/* Gradient fade: image bleeds into card background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-gray-800 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-gray-900 pointer-events-none" />
       </div>
 
       {/* Title sits in the fade zone */}

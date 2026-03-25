@@ -94,8 +94,8 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
   return (
     <div className="min-h-screen bg-gray-950 text-white px-4 py-8">
       <div className="max-w-md mx-auto">
-        <h1 className="text-2xl font-bold text-center mb-1">Results</h1>
-        <p className="text-gray-400 text-center text-sm mb-8">Ranked by yes votes</p>
+        <h1 className="font-display text-2xl font-bold text-center tracking-tight mb-1">Results</h1>
+        <p className="text-gray-500 text-center text-sm mb-8">Ranked by yes votes</p>
 
         {/* Single winner */}
         {winners.length === 1 && (
@@ -162,22 +162,22 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
 
         {/* Rest of the ranked list */}
         {rest.length > 0 && (
-          <div className="space-y-3 mb-8">
-            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">Also ranked</h3>
+          <div className="space-y-2 mb-8">
+            <h3 className="font-display text-xs font-semibold uppercase tracking-widest text-gray-500 mb-3">Also ranked</h3>
             {rest.map((game, i) => (
-              <div key={game.gameId} className="bg-gray-800 rounded-xl p-3 flex gap-3 items-center">
-                <span className="text-gray-500 font-bold w-5 text-center">{i + 2}</span>
+              <div key={game.gameId} className="bg-gray-900 border border-white/5 rounded-xl p-3 flex gap-3 items-center">
+                <span className="font-display font-black text-gray-600 w-5 text-center text-sm">{i + 2}</span>
                 {game.imageUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={game.imageUrl}
                     alt={game.title}
-                    className="w-14 h-14 object-contain rounded bg-gray-900 flex-shrink-0"
+                    className="w-14 h-14 object-contain rounded bg-gray-800 flex-shrink-0"
                   />
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="font-serif font-medium text-sm leading-tight truncate">{game.title}</p>
-                  <p className="text-gray-400 text-xs mt-0.5">
+                  <p className="text-gray-500 text-xs mt-0.5">
                     {game.minPlayers}–{game.maxPlayers}p · {game.playTime}min
                   </p>
                   <VoteCounts yes={game.yesCount} maybe={game.maybeCount} no={game.noCount} small />
@@ -189,7 +189,7 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
 
         <Link
           href="/dashboard"
-          className="block w-full text-center py-3 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold transition-colors"
+          className="block w-full text-center py-3 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-display font-bold btn-glow"
         >
           Back to Dashboard
         </Link>
