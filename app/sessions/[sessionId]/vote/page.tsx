@@ -305,12 +305,12 @@ function SwipeCard({
 
       {/* Title sits in the fade zone */}
       <div className="px-4 pb-5 -mt-10 relative z-10">
-        <h2 className="font-serif text-2xl font-bold leading-tight mb-1">{game.title}</h2>
-        <p className="text-gray-400 text-sm">
+        <h2 className="text-2xl font-bold leading-tight mb-1">{game.title}</h2>
+        <p className="text-gray-300 text-sm">
           {game.minPlayers}–{game.maxPlayers} players · {game.playTime} min
         </p>
         {game.complexity > 0 && (
-          <p className="text-gray-500 text-xs mt-0.5">
+          <p className="text-gray-400 text-xs mt-0.5">
             Complexity {game.complexity.toFixed(1)}/5
           </p>
         )}

@@ -112,8 +112,8 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
               />
             )}
             <div className="p-4">
-              <h2 className="font-serif text-xl font-bold mb-1">{winners[0].title}</h2>
-              <p className="text-gray-400 text-sm mb-3">
+              <h2 className="text-xl font-bold mb-1">{winners[0].title}</h2>
+              <p className="text-gray-300 text-sm mb-3">
                 {winners[0].minPlayers}–{winners[0].maxPlayers} players · {winners[0].playTime} min
               </p>
               <VoteCounts yes={winners[0].yesCount} maybe={winners[0].maybeCount} no={winners[0].noCount} />
@@ -138,8 +138,8 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
                   />
                 )}
                 <div className="p-4">
-                  <h2 className="font-serif text-xl font-bold mb-1">{winner.title}</h2>
-                  <p className="text-gray-400 text-sm mb-3">
+                  <h2 className="text-xl font-bold mb-1">{winner.title}</h2>
+                  <p className="text-gray-300 text-sm mb-3">
                     {winner.minPlayers}–{winner.maxPlayers} players · {winner.playTime} min
                   </p>
                   <VoteCounts yes={winner.yesCount} maybe={winner.maybeCount} no={winner.noCount} />
@@ -176,8 +176,8 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
                   />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="font-serif font-medium text-sm leading-tight truncate">{game.title}</p>
-                  <p className="text-gray-500 text-xs mt-0.5">
+                  <p className="font-medium text-sm leading-tight truncate">{game.title}</p>
+                  <p className="text-gray-400 text-xs mt-0.5">
                     {game.minPlayers}–{game.maxPlayers}p · {game.playTime}min
                   </p>
                   <VoteCounts yes={game.yesCount} maybe={game.maybeCount} no={game.noCount} small />

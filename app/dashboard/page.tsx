@@ -103,49 +103,31 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* BGG connection status */}
-        <div className="bg-gray-900 border border-white/5 rounded-2xl p-5 mb-4">
-          <h2 className="font-display font-semibold text-xs uppercase tracking-widest text-gray-500 mb-2">Game Library</h2>
-          {profile?.bgg_username ? (
-            <div className="flex items-center justify-between">
-              <p className="text-sm">
-                Connected as <span className="text-indigo-400 font-medium">{profile.bgg_username}</span>
-              </p>
-              <Link href="/bgg/connect" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">Change</Link>
-            </div>
-          ) : profile?.bgg_source === 'csv' ? (
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-300">Collection loaded from CSV</p>
-              <Link href="/bgg/connect" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">Change</Link>
-            </div>
-          ) : (
-            <div>
-              <p className="text-gray-400 text-sm mb-3">Import your BoardGameGeek collection to get started.</p>
-              <Link
-                href="/bgg/connect"
-                className="inline-block px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-sm font-semibold btn-glow"
-              >
-                Import Collection
-              </Link>
-            </div>
-          )}
-        </div>
-
-        {/* New session button — only show if a collection is connected */}
-        {(profile?.bgg_username || profile?.bgg_source === 'csv') && (
+        {/* New session CTA — prominent at top if collection is connected */}
+        {(profile?.bgg_username || profile?.bgg_source === 'csv') ? (
           <Link
             href="/sessions/new"
-            className="relative overflow-hidden block w-full text-center py-4 bg-indigo-600 hover:bg-indigo-700 rounded-2xl font-display font-bold tracking-wide btn-glow mt-2"
+            className="flex flex-col items-center justify-center gap-3 w-full py-8 bg-indigo-600 hover:bg-indigo-700 rounded-2xl font-display font-bold tracking-wide btn-glow mb-6"
           >
-            <span className="relative z-10">Start a New Game Night</span>
-            <span className="absolute right-5 top-1/2 -translate-y-1/2 text-5xl text-white/10 pointer-events-none select-none leading-none">🎲</span>
+            <span className="text-4xl">🎲</span>
+            <span className="text-lg">Start a New Game Night</span>
           </Link>
+        ) : (
+          <div className="bg-gray-900 border border-white/5 rounded-2xl p-5 mb-6">
+            <p className="text-gray-300 text-sm mb-3">Import your BoardGameGeek collection to get started.</p>
+            <Link
+              href="/bgg/connect"
+              className="inline-block px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-sm font-semibold btn-glow"
+            >
+              Import Collection
+            </Link>
+          </div>
         )}
 
         {/* Recent sessions */}
         {summaries.length > 0 && (
-          <div className="mt-10">
-            <h2 className="font-display text-xs font-semibold uppercase tracking-widest text-gray-500 mb-4">
+          <div className="mb-6">
+            <h2 className="font-display text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
               Recent Sessions
             </h2>
             <div className="space-y-2">
@@ -161,7 +143,7 @@ export default async function DashboardPage() {
                     <span className="absolute right-14 top-1/2 -translate-y-1/2 text-4xl text-white/4 pointer-events-none select-none leading-none">🏆</span>
                     <div className="min-w-0">
                       <p className="font-medium text-sm truncate">{winnerLine}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-gray-400 mt-0.5">
                         {date} · {s.playerCount > 0 ? `${s.playerCount} players` : 'players TBD'} · {s.gameCount} games
                       </p>
                     </div>
@@ -175,6 +157,26 @@ export default async function DashboardPage() {
                 )
               })}
             </div>
+          </div>
+        )}
+
+        {/* Game library — at bottom */}
+        {(profile?.bgg_username || profile?.bgg_source === 'csv') && (
+          <div className="bg-gray-900 border border-white/5 rounded-2xl p-5">
+            <h2 className="font-display font-semibold text-xs uppercase tracking-widest text-gray-400 mb-2">Game Library</h2>
+            {profile?.bgg_username ? (
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-300">
+                  Connected as <span className="text-indigo-400 font-medium">{profile.bgg_username}</span>
+                </p>
+                <Link href="/bgg/connect" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">Change</Link>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-300">Collection loaded from CSV</p>
+                <Link href="/bgg/connect" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">Change</Link>
+              </div>
+            )}
           </div>
         )}
       </div>

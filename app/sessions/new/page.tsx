@@ -165,14 +165,14 @@ export default function NewSessionPage() {
           ← Back to Dashboard
         </Link>
         <h1 className="font-display text-2xl font-bold tracking-tight mb-1">New Game Night Session</h1>
-        <p className="text-gray-500 text-sm mb-6">
+        <p className="text-gray-400 text-sm mb-6">
           Choose which games to include. Only games that support the right player count will show during voting.
         </p>
 
         {/* Max games slider */}
         <div className="bg-gray-900 border border-white/5 rounded-xl p-4 mb-6">
-          <label className="block text-xs font-display font-semibold uppercase tracking-wider text-gray-500 mb-2">
-            Max games to vote on: <span className="text-indigo-400">{maxGames}</span>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Max games to vote on: <span className="text-indigo-400 font-bold">{maxGames}</span>
           </label>
           <input
             type="range"
@@ -189,7 +189,7 @@ export default function NewSessionPage() {
         <div className="bg-gray-900 border border-white/5 rounded-xl p-4 mb-6 space-y-4">
           {/* Player count */}
           <div className="flex items-center gap-3">
-            <span className="font-display text-xs font-semibold uppercase tracking-wider text-gray-500 w-28 flex-shrink-0">Players</span>
+            <span className="text-sm text-gray-300 w-28 flex-shrink-0">Players</span>
             <input
               type="number"
               min={1}
@@ -208,7 +208,7 @@ export default function NewSessionPage() {
 
           {/* Complexity */}
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="font-display text-xs font-semibold uppercase tracking-wider text-gray-500 w-28 flex-shrink-0">Complexity</span>
+            <span className="text-sm text-gray-300 w-28 flex-shrink-0">Complexity</span>
             <div className="flex gap-2">
               {(['easy', 'medium', 'hard'] as const).map(band => {
                 const labels = { easy: 'Easy', medium: 'Medium', hard: 'Hard' }
@@ -243,7 +243,7 @@ export default function NewSessionPage() {
 
           {/* Expansions */}
           <div className="flex items-center gap-3">
-            <span className="font-display text-xs font-semibold uppercase tracking-wider text-gray-500 w-28 flex-shrink-0">Expansions</span>
+            <span className="text-sm text-gray-300 w-28 flex-shrink-0">Expansions</span>
             <button
               onClick={() => setExcludeExpansions(prev => !prev)}
               className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
@@ -301,11 +301,11 @@ export default function NewSessionPage() {
                   <img src={game.imageUrl} alt={game.title} className="w-full aspect-square object-contain rounded mb-2" />
                 )}
                 <p className="text-sm font-medium leading-tight">{game.title}</p>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-gray-300 mt-1">
                   {playersLabel}{game.playTime > 0 ? ` · ${game.playTime}min` : ''}
                 </p>
                 {game.complexity > 0 && (
-                  <p className="text-xs text-gray-500 mt-0.5">Complexity {game.complexity.toFixed(1)}/5.0</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Complexity {game.complexity.toFixed(1)}/5.0</p>
                 )}
                 {isCustom && <p className="text-xs text-indigo-400 mt-0.5">Custom</p>}
                 {descriptorMap[game.bggId]?.length > 0 ? (
