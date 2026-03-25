@@ -306,7 +306,7 @@ function SwipeCard({
 
       {/* Title sits in the fade zone */}
       <div className="px-4 pb-5 -mt-10 relative z-10">
-        <h2 className="font-serif italic text-2xl font-bold leading-tight mb-1">{game.title}</h2>
+        <h2 className="font-serif text-2xl font-bold leading-tight mb-1">{game.title}</h2>
         <p className="text-gray-400 text-sm">
           {game.minPlayers}–{game.maxPlayers} players · {game.playTime} min
         </p>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { QRCodeSVG } from 'qrcode.react'
 
@@ -73,6 +74,9 @@ export default function LobbyPage({ params }: { params: Promise<{ sessionId: str
   return (
     <div className="min-h-screen bg-gray-950 text-white px-4 py-8">
       <div className="max-w-md mx-auto">
+        <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-white mb-4">
+          ← Back to Dashboard
+        </Link>
         <h1 className="text-2xl font-bold mb-1">Game Night Lobby</h1>
         <p className="text-gray-400 text-sm mb-8">Share the QR code or join code with your friends.</p>
 

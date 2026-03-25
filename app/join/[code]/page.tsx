@@ -76,7 +76,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
   return (
     <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <h1 className="font-serif italic text-3xl font-bold text-center mb-2">🎲 Gamer Matcher</h1>
+        <h1 className="font-serif text-3xl font-bold text-center mb-2">🎲 Gamer Matcher</h1>
         <p className="text-gray-400 text-center mb-2">
           Joining session <span className="font-mono text-indigo-400 font-bold">{code.toUpperCase()}</span>
         </p>
