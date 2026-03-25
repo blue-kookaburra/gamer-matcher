@@ -67,20 +67,19 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
     return (
       <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 text-center">
         <div className="text-5xl mb-6 animate-pulse">🎲</div>
-        <h1 className="text-2xl font-bold mb-2">You&apos;re in!</h1>
-        <p className="text-gray-400">Waiting for the host to start the session...</p>
+        <h1 className="font-display text-2xl font-bold mb-2">You&apos;re in!</h1>
+        <p className="text-gray-500">Waiting for the host to start the session...</p>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <h1 className="font-serif text-3xl font-bold text-center mb-2">🎲 Gamer Matcher</h1>
-        <p className="text-gray-400 text-center mb-2">
-          Joining session <span className="font-mono text-indigo-400 font-bold">{code.toUpperCase()}</span>
-        </p>
-        <p className="text-gray-500 text-center text-sm mb-8">Enter your name to join</p>
+      <div className="w-full max-w-sm text-center">
+        <p className="font-display text-xs font-semibold uppercase tracking-widest text-gray-500 mb-6">Gamer Matcher</p>
+        <p className="text-gray-400 text-sm mb-1">Joining session</p>
+        <p className="font-display font-black text-4xl text-indigo-400 tracking-widest mb-1">{code.toUpperCase()}</p>
+        <p className="text-gray-500 text-sm mb-8">Enter your name to join</p>
 
         <form onSubmit={handleJoin} className="space-y-4">
           <input
@@ -90,7 +89,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
             placeholder="Your name"
             required
             maxLength={30}
-            className="w-full px-4 py-3 rounded-xl bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-indigo-500 text-lg text-center"
+            className="w-full px-4 py-3 rounded-xl bg-gray-900 text-white border border-white/8 focus:outline-none focus:border-indigo-500 text-lg text-center transition-colors"
           />
 
           {error && <p className="text-red-400 text-sm text-center">{error}</p>}
@@ -98,7 +97,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
           <button
             type="submit"
             disabled={joining || !name.trim()}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-xl font-semibold text-lg transition-colors"
+            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-xl font-semibold text-lg btn-glow"
           >
             {joining ? 'Joining...' : 'Join Game Night'}
           </button>

@@ -2,21 +2,53 @@
 
 @theme {
   /* Fonts */
-  --font-sans: var(--font-outfit);
-  --font-serif: var(--font-libre-caslon);
+  --font-sans: var(--font-dm-sans);
+  --font-serif: var(--font-instrument-serif);
+  --font-display: var(--font-syne);
 
-  /* Navy-tinted gray palette — auto-applies to all bg-gray-* / text-gray-* across the app */
-  --color-gray-950: #0d1025;
-  --color-gray-900: #111428;
-  --color-gray-800: #1a1f3a;
-  --color-gray-700: #252a48;
-  --color-gray-600: #313762;
-  --color-gray-500: #636894;
-  --color-gray-400: #8b90b8;
-  --color-gray-300: #bbc0d9;
+  /* Near-black neutral palette */
+  --color-gray-950: #0a0a0f;
+  --color-gray-900: #10101a;
+  --color-gray-800: #16161f;
+  --color-gray-700: #1e1e2a;
+  --color-gray-600: #2a2a38;
+  --color-gray-500: #4a4a68;
+  --color-gray-400: #7878a0;
+  --color-gray-300: #b0b0c8;
+
+  /* Warm orange-red accent — replaces indigo throughout */
+  --color-indigo-950: #1c0e08;
+  --color-indigo-900: #2a1510;
+  --color-indigo-800: #4a1e0e;
+  --color-indigo-700: #c4522a;
+  --color-indigo-600: #ff6b35;
+  --color-indigo-500: #ff8554;
+  --color-indigo-400: #ffa07a;
 }
 
 body {
-  background: #0d1025;
-  color: #ffffff;
+  background: #0a0a0f;
+  color: #f0f0f5;
+}
+
+/* Brand gradient — for landing page headline */
+.text-brand {
+  background: linear-gradient(135deg, #ff6b35 0%, #ff9a5c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Warm glow on primary CTA buttons */
+.btn-glow {
+  box-shadow: 0 0 24px rgba(255, 107, 53, 0.3);
+  transition: box-shadow 0.2s ease, background-color 0.15s ease;
+}
+.btn-glow:hover {
+  box-shadow: 0 0 40px rgba(255, 107, 53, 0.5);
+}
+
+/* Landing page atmospheric background */
+.hero-bg {
+  background: radial-gradient(ellipse at 50% -10%, rgba(255, 107, 53, 0.07) 0%, transparent 55%), #0a0a0f;
 }

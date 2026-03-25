@@ -63,7 +63,7 @@ export function parseCollectionCSV(csvText: string): BGGGame[] {
       maxPlayers: Number(row.maxplayers) || 99,
       playTime: Number(row.playingtime) || 0,
       complexity: Number(row.avgweight) || 0,
-      isExpansion: row.subtype === 'boardgameexpansion',
+      isExpansion: row.itemtype === 'expansion',
     }))
     .filter(g => g.bggId && g.title !== 'Unknown')
 }

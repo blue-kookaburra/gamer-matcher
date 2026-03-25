@@ -120,6 +120,7 @@ export default function NewSessionPage() {
       maxPlayers: customMax ? Number(customMax) : 99,
       playTime: 0,
       complexity: customComplexity ? Number(customComplexity) : 0,
+      isExpansion: false,
     }
     setGames(prev => [...prev, game])
     setSelected(prev => new Set([...prev, game.bggId]))
@@ -160,18 +161,18 @@ export default function NewSessionPage() {
   return (
     <div className="min-h-screen bg-gray-950 text-white px-4 py-8">
       <div className="max-w-2xl mx-auto">
-        <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-white mb-4">
+        <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-white mb-6 transition-colors">
           ← Back to Dashboard
         </Link>
-        <h1 className="text-2xl font-bold mb-1">New Game Night Session</h1>
-        <p className="text-gray-400 text-sm mb-6">
+        <h1 className="font-display text-2xl font-bold tracking-tight mb-1">New Game Night Session</h1>
+        <p className="text-gray-500 text-sm mb-6">
           Choose which games to include. Only games that support the right player count will show during voting.
         </p>
 
         {/* Max games slider */}
-        <div className="bg-gray-800 rounded-xl p-4 mb-6">
-          <label className="block text-sm font-medium mb-2">
-            Max games to vote on: <span className="text-indigo-400 font-bold">{maxGames}</span>
+        <div className="bg-gray-900 border border-white/5 rounded-xl p-4 mb-6">
+          <label className="block text-xs font-display font-semibold uppercase tracking-wider text-gray-500 mb-2">
+            Max games to vote on: <span className="text-indigo-400">{maxGames}</span>
           </label>
           <input
             type="range"
@@ -185,10 +186,10 @@ export default function NewSessionPage() {
         </div>
 
         {/* Filters */}
-        <div className="bg-gray-800 rounded-xl p-4 mb-6 space-y-4">
+        <div className="bg-gray-900 border border-white/5 rounded-xl p-4 mb-6 space-y-4">
           {/* Player count */}
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-300 w-28 flex-shrink-0">Players</span>
+            <span className="font-display text-xs font-semibold uppercase tracking-wider text-gray-500 w-28 flex-shrink-0">Players</span>
             <input
               type="number"
               min={1}
@@ -207,7 +208,7 @@ export default function NewSessionPage() {
 
           {/* Complexity */}
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-sm text-gray-300 w-28 flex-shrink-0">Complexity</span>
+            <span className="font-display text-xs font-semibold uppercase tracking-wider text-gray-500 w-28 flex-shrink-0">Complexity</span>
             <div className="flex gap-2">
               {(['easy', 'medium', 'hard'] as const).map(band => {
                 const labels = { easy: 'Easy', medium: 'Medium', hard: 'Hard' }
@@ -242,7 +243,7 @@ export default function NewSessionPage() {
 
           {/* Expansions */}
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-300 w-28 flex-shrink-0">Expansions</span>
+            <span className="font-display text-xs font-semibold uppercase tracking-wider text-gray-500 w-28 flex-shrink-0">Expansions</span>
             <button
               onClick={() => setExcludeExpansions(prev => !prev)}
               className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
@@ -394,7 +395,7 @@ export default function NewSessionPage() {
         <button
           onClick={handleCreate}
           disabled={creating || selected.size === 0}
-          className="w-full py-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 rounded-xl font-semibold transition-colors"
+          className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 rounded-xl font-display font-bold tracking-wide btn-glow"
         >
           {creating ? 'Creating session...' : 'Create Session'}
         </button>

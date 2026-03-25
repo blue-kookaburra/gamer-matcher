@@ -89,25 +89,25 @@ export default function ConnectBGGPage() {
   return (
     <div className="min-h-screen bg-gray-950 text-white px-4 py-8">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-1">Import Game Collection</h1>
-        <p className="text-gray-400 mb-6 text-sm">
+        <h1 className="font-display text-2xl font-bold tracking-tight mb-1">Import Game Collection</h1>
+        <p className="text-gray-500 mb-6 text-sm">
           Choose how to import your BoardGameGeek collection.
         </p>
 
         {/* Tab toggle */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 mb-6 bg-gray-900 border border-white/5 rounded-xl p-1">
           <button
             onClick={() => { setTab('csv'); setGames([]); setError('') }}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
-              tab === 'csv' ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            className={`flex-1 px-4 py-2 rounded-lg text-sm font-display font-semibold transition-colors ${
+              tab === 'csv' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'
             }`}
           >
             Upload CSV
           </button>
           <button
             onClick={() => { setTab('username'); setGames([]); setError('') }}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
-              tab === 'username' ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            className={`flex-1 px-4 py-2 rounded-lg text-sm font-display font-semibold transition-colors ${
+              tab === 'username' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'
             }`}
           >
             BGG Username
@@ -117,8 +117,8 @@ export default function ConnectBGGPage() {
         {/* CSV upload tab */}
         {tab === 'csv' && (
           <div className="mb-6">
-            <p className="text-gray-400 text-sm mb-3">
-              Export your collection from BGG: go to <strong>My Collection</strong> → <strong>Export</strong> → download the CSV file, then upload it here.
+            <p className="text-gray-500 text-sm mb-3">
+              Export your collection from BGG: go to <strong className="text-gray-300">My Collection</strong> → <strong className="text-gray-300">Export</strong> → download the CSV file, then upload it here.
             </p>
             <label className="block">
               <span className="sr-only">Choose CSV file</span>
@@ -127,7 +127,7 @@ export default function ConnectBGGPage() {
                 accept=".csv"
                 onChange={handleCSVUpload}
                 disabled={fetching}
-                className="block w-full text-sm text-gray-300
+                className="block w-full text-sm text-gray-400
                   file:mr-4 file:py-2 file:px-4
                   file:rounded-lg file:border-0
                   file:text-sm file:font-semibold
@@ -136,15 +136,15 @@ export default function ConnectBGGPage() {
                   file:cursor-pointer file:disabled:opacity-50"
               />
             </label>
-            {fetching && <p className="text-gray-400 text-sm mt-3">Parsing CSV...</p>}
+            {fetching && <p className="text-gray-500 text-sm mt-3">Parsing CSV...</p>}
           </div>
         )}
 
         {/* Username tab */}
         {tab === 'username' && (
           <div className="mb-6">
-            <p className="text-gray-400 text-sm mb-3">
-              Your BGG collection must be set to <strong>public</strong>.
+            <p className="text-gray-500 text-sm mb-3">
+              Your BGG collection must be set to <strong className="text-gray-300">public</strong>.
             </p>
             <form onSubmit={handlePreview} className="flex gap-3">
               <input
@@ -153,12 +153,12 @@ export default function ConnectBGGPage() {
                 onChange={e => setUsername(e.target.value)}
                 placeholder="Your BGG username"
                 required
-                className="flex-1 px-4 py-2 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-indigo-500"
+                className="flex-1 px-4 py-2.5 rounded-lg bg-gray-900 text-white border border-white/8 focus:outline-none focus:border-indigo-500 transition-colors"
               />
               <button
                 type="submit"
                 disabled={fetching}
-                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-lg font-semibold transition-colors"
+                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-lg font-semibold btn-glow"
               >
                 {fetching ? 'Loading...' : 'Preview'}
               </button>
@@ -176,11 +176,11 @@ export default function ConnectBGGPage() {
         {games.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-4">
-              <p className="text-gray-300 text-sm">{games.length} games found</p>
+              <p className="text-gray-500 text-sm">{games.length} games found</p>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="px-5 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 rounded-lg font-semibold text-sm transition-colors"
+                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-lg font-semibold text-sm btn-glow"
               >
                 {saving ? 'Saving...' : 'Use This Collection'}
               </button>
@@ -188,7 +188,7 @@ export default function ConnectBGGPage() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {games.map(game => (
-                <div key={game.bggId} className="bg-gray-800 rounded-lg p-3 flex flex-col gap-2">
+                <div key={game.bggId} className="bg-gray-900 border border-white/5 rounded-lg p-3 flex flex-col gap-2">
                   {game.imageUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -198,7 +198,7 @@ export default function ConnectBGGPage() {
                     />
                   )}
                   <p className="text-sm font-medium leading-tight">{game.title}</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-500">
                     {game.minPlayers}–{game.maxPlayers} players · {game.playTime}min
                   </p>
                 </div>
