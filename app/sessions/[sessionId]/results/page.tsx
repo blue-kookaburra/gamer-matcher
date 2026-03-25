@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, use } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 
 type RankedGame = {
   gameId: string
@@ -17,8 +19,11 @@ type RankedGame = {
 
 export default function ResultsPage({ params }: { params: Promise<{ sessionId: string }> }) {
   const { sessionId } = use(params)
+  const router = useRouter()
   const [games, setGames] = useState<RankedGame[]>([])
   const [loading, setLoading] = useState(true)
+  const [isHost, setIsHost] = useState(false)
+  const [revoting, setRevoting] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -29,6 +34,49 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
     }
     load()
   }, [sessionId])
+
+  useEffect(() => {
+    const supabase = createClient()
+
+    async function checkHost() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data: session } = await supabase
+        .from('sessions')
+        .select('host_id')
+        .eq('id', sessionId)
+        .single()
+      setIsHost(session?.host_id === user.id)
+    }
+    checkHost()
+
+    // All participants on this page redirect when the host triggers a re-vote
+    const channel = supabase
+      .channel(`revote:${sessionId}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'sessions', filter: `id=eq.${sessionId}` },
+        payload => {
+          if (payload.new.status === 'revoting') {
+            router.push(`/sessions/${sessionId}/vote`)
+          }
+        }
+      )
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [sessionId, router])
+
+  async function handleRevote() {
+    setRevoting(true)
+    const winnerIds = winners.map(w => w.gameId)
+    await fetch(`/api/sessions/${sessionId}/revote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gameIds: winnerIds }),
+    })
+    // Redirect is triggered by the realtime listener above for all participants
+  }
 
   if (loading) {
     return (
@@ -49,20 +97,44 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
         <h1 className="text-2xl font-bold text-center mb-1">Results</h1>
         <p className="text-gray-400 text-center text-sm mb-8">Ranked by yes votes</p>
 
-        {/* Winner(s) */}
-        {winners.length > 0 && (
-          <div className="mb-6 space-y-4">
+        {/* Single winner */}
+        {winners.length === 1 && (
+          <div className="bg-indigo-950 border-2 border-indigo-500 rounded-2xl overflow-hidden mb-6">
+            <div className="bg-indigo-600 text-center py-2 text-sm font-bold tracking-wide">
+              🏆 TONIGHT&apos;S GAME
+            </div>
+            {winners[0].imageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={winners[0].imageUrl}
+                alt={winners[0].title}
+                className="w-full h-56 object-contain bg-gray-900"
+              />
+            )}
+            <div className="p-4">
+              <h2 className="font-serif text-xl font-bold mb-1">{winners[0].title}</h2>
+              <p className="text-gray-400 text-sm mb-3">
+                {winners[0].minPlayers}–{winners[0].maxPlayers} players · {winners[0].playTime} min
+              </p>
+              <VoteCounts yes={winners[0].yesCount} maybe={winners[0].maybeCount} no={winners[0].noCount} />
+            </div>
+          </div>
+        )}
+
+        {/* Tied winners — all in one box */}
+        {winners.length > 1 && (
+          <div className="bg-indigo-950 border-2 border-indigo-500 rounded-2xl overflow-hidden mb-6">
+            <div className="bg-indigo-600 text-center py-2 text-sm font-bold tracking-wide">
+              🏆 IT&apos;S A TIE!
+            </div>
             {winners.map(winner => (
-              <div key={winner.gameId} className="bg-indigo-950 border-2 border-indigo-500 rounded-2xl overflow-hidden">
-                <div className="bg-indigo-600 text-center py-2 text-sm font-bold tracking-wide">
-                  {winners.length === 1 ? "🏆 TONIGHT'S GAME" : "🏆 IT'S A TIE!"}
-                </div>
+              <div key={winner.gameId} className="border-t border-indigo-800/50 first:border-t-0">
                 {winner.imageUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={winner.imageUrl}
                     alt={winner.title}
-                    className="w-full h-56 object-contain bg-gray-900"
+                    className="w-full h-40 object-contain bg-gray-900"
                   />
                 )}
                 <div className="p-4">
@@ -74,6 +146,17 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
                 </div>
               </div>
             ))}
+            {isHost && (
+              <div className="px-4 pb-4 border-t border-indigo-800/50">
+                <button
+                  onClick={handleRevote}
+                  disabled={revoting}
+                  className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-xl text-sm font-semibold transition-colors mt-3"
+                >
+                  {revoting ? 'Starting re-vote...' : '🔁 Re-vote with just these winners'}
+                </button>
+              </div>
+            )}
           </div>
         )}
 

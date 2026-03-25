@@ -33,6 +33,7 @@ export async function POST(request: Request) {
     max_players: g.maxPlayers,
     play_time: g.playTime,
     complexity: g.complexity,
+    is_expansion: g.isExpansion,
   }))
 
   const { error } = await supabase.from('bgg_games').insert(rows)
