@@ -66,7 +66,7 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
                   />
                 )}
                 <div className="p-4">
-                  <h2 className="text-xl font-bold mb-1">{winner.title}</h2>
+                  <h2 className="font-serif italic text-xl font-bold mb-1">{winner.title}</h2>
                   <p className="text-gray-400 text-sm mb-3">
                     {winner.minPlayers}–{winner.maxPlayers} players · {winner.playTime} min
                   </p>
@@ -93,7 +93,7 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
                   />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm leading-tight truncate">{game.title}</p>
+                  <p className="font-serif italic font-medium text-sm leading-tight truncate">{game.title}</p>
                   <p className="text-gray-400 text-xs mt-0.5">
                     {game.minPlayers}–{game.maxPlayers}p · {game.playTime}min
                   </p>

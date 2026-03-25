@@ -25,13 +25,12 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
   const [loading, setLoading] = useState(true)
   const [waiting, setWaiting] = useState(false)
   const [error, setError] = useState('')
-  const votingRef = useRef(false) // ref-based lock: doesn't disable buttons visually
+  const votingRef = useRef(false)
 
   useEffect(() => {
     async function init() {
       const supabase = createClient()
 
-      // Resolve participant ID — host is authenticated, guests use localStorage
       const { data: { user } } = await supabase.auth.getUser()
       let pid: string | null = null
 
@@ -49,7 +48,6 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
 
       setParticipantId(pid)
 
-      // Fetch session player count and games in parallel
       const [{ data: sessionData }, { data: gamesData }] = await Promise.all([
         supabase.from('sessions').select('player_count').eq('id', sessionId).single(),
         supabase
@@ -63,7 +61,7 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
 
       const filtered = (gamesData ?? [])
         .filter(g => {
-          if (playerCount === 0) return true // fallback: show all if count unknown
+          if (playerCount === 0) return true
           return (g.min_players ?? 1) <= playerCount && (g.max_players ?? 99) >= playerCount
         })
         .map(g => ({
@@ -84,7 +82,6 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
     init()
   }, [sessionId])
 
-  // Subscribe to participant updates when in waiting state
   const startWaiting = useCallback(() => {
     setWaiting(true)
     const supabase = createClient()
@@ -115,7 +112,7 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
 
     const game = games[index]
     setIndex(prev => prev + 1)
-    votingRef.current = false // release before await — next card is immediately swipeable
+    votingRef.current = false
 
     try {
       const res = await fetch(`/api/sessions/${sessionId}/vote`, {
@@ -190,14 +187,13 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
       </div>
 
       {/* Card stack */}
-      <div className="flex-1 flex items-center justify-center w-full">
-        <div className="relative w-full max-w-sm" style={{ height: '420px' }}>
+      <div className="flex-1 flex items-center justify-center w-full py-6">
+        <div className="relative w-full max-w-sm">
           {/* Next card peeking behind */}
           {index + 1 < games.length && (
-            <div className="absolute inset-0 bg-gray-800 rounded-2xl scale-95 translate-y-2 opacity-60" />
+            <div className="absolute inset-x-0 bottom-0 h-full bg-gray-800 rounded-2xl scale-95 translate-y-2 opacity-60" />
           )}
 
-          {/* Current card — sync AnimatePresence (no mode="wait") so next card enters immediately */}
           <AnimatePresence>
             <SwipeCard
               key={game.gameId}
@@ -208,28 +204,33 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
         </div>
       </div>
 
-      {/* Vote buttons — never disabled so always responsive */}
-      <div className="flex gap-6 items-center pb-4">
+      {/* Vote buttons — wider pills with ghost symbol */}
+      <div className="flex gap-3 w-full max-w-sm pb-2">
         <button
           onClick={() => submitVote('no')}
-          className="w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 flex items-center justify-center text-2xl shadow-lg transition-colors"
+          className="relative flex-1 h-14 rounded-2xl bg-red-950/80 border border-red-800/50 flex items-center justify-center overflow-hidden transition-colors hover:bg-red-950"
           title="No"
         >
-          ✗
+          <span className="relative z-10 text-red-300 font-semibold text-sm tracking-wide">✗ No</span>
+          <span className="absolute right-3 text-6xl text-red-500/10 leading-none pointer-events-none select-none">✗</span>
         </button>
+
         <button
           onClick={() => submitVote('maybe')}
-          className="w-12 h-12 rounded-full bg-gray-600 hover:bg-gray-500 flex items-center justify-center text-xl shadow-lg transition-colors"
+          className="relative w-16 h-14 rounded-2xl bg-gray-800 border border-gray-700/50 flex items-center justify-center overflow-hidden flex-shrink-0 transition-colors hover:bg-gray-700"
           title="Maybe"
         >
-          ~
+          <span className="relative z-10 text-gray-300 font-semibold text-sm">~</span>
+          <span className="absolute right-2 text-5xl text-gray-500/10 leading-none pointer-events-none select-none">~</span>
         </button>
+
         <button
           onClick={() => submitVote('yes')}
-          className="w-16 h-16 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center text-2xl shadow-lg transition-colors"
+          className="relative flex-1 h-14 rounded-2xl bg-green-950/80 border border-green-800/50 flex items-center justify-center overflow-hidden transition-colors hover:bg-green-950"
           title="Yes"
         >
-          ✓
+          <span className="relative z-10 text-green-300 font-semibold text-sm tracking-wide">✓ Yes</span>
+          <span className="absolute right-3 text-6xl text-green-500/10 leading-none pointer-events-none select-none">✓</span>
         </button>
       </div>
     </div>
@@ -255,7 +256,7 @@ function SwipeCard({
 
   return (
     <motion.div
-      className="absolute inset-0 bg-gray-800 rounded-2xl overflow-hidden cursor-grab active:cursor-grabbing shadow-xl select-none"
+      className="relative bg-gray-800 rounded-2xl overflow-hidden cursor-grab active:cursor-grabbing shadow-xl select-none"
       style={{ x, rotate }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
@@ -284,24 +285,28 @@ function SwipeCard({
         </span>
       </motion.div>
 
-      {/* Game image */}
-      {game.imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={game.imageUrl}
-          alt={game.title}
-          className="w-full h-56 object-contain bg-gray-900 pointer-events-none"
-          draggable={false}
-        />
-      ) : (
-        <div className="w-full h-56 bg-gray-900 flex items-center justify-center text-5xl">
-          🎲
-        </div>
-      )}
+      {/* Game image with gradient fade into card */}
+      <div className="relative w-full h-52 flex-shrink-0">
+        {game.imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={game.imageUrl}
+            alt={game.title}
+            className="w-full h-full object-cover pointer-events-none"
+            draggable={false}
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-900 flex items-center justify-center text-5xl">
+            🎲
+          </div>
+        )}
+        {/* Gradient fade: image bleeds into card background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-gray-800 pointer-events-none" />
+      </div>
 
-      {/* Game info */}
-      <div className="p-4">
-        <h2 className="text-lg font-bold leading-tight mb-1">{game.title}</h2>
+      {/* Title sits in the fade zone */}
+      <div className="px-4 pb-5 -mt-10 relative z-10">
+        <h2 className="font-serif italic text-2xl font-bold leading-tight mb-1">{game.title}</h2>
         <p className="text-gray-400 text-sm">
           {game.minPlayers}–{game.maxPlayers} players · {game.playTime} min
         </p>

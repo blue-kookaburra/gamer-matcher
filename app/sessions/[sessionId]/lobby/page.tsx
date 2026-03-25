@@ -108,9 +108,12 @@ export default function LobbyPage({ params }: { params: Promise<{ sessionId: str
         <button
           onClick={handleStart}
           disabled={starting || guestCount === 0}
-          className="w-full py-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 rounded-xl font-semibold transition-colors"
+          className="relative overflow-hidden w-full py-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 rounded-xl font-semibold transition-colors"
         >
-          {starting ? 'Starting...' : `Start Voting (${participants.length} player${participants.length !== 1 ? 's' : ''})`}
+          <span className="relative z-10">
+            {starting ? 'Starting...' : `Start Voting (${participants.length} player${participants.length !== 1 ? 's' : ''})`}
+          </span>
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-5xl text-white/10 pointer-events-none select-none leading-none">🎮</span>
         </button>
         {guestCount === 0 && (
           <p className="text-center text-gray-500 text-xs mt-2">Need at least 1 guest to start</p>
