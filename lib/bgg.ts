@@ -10,6 +10,8 @@ export type BGGGame = {
   maxPlayers: number
   playTime: number       // minutes
   complexity: number     // BGG weight rating 1-5
+  isExpansion: boolean
+  descriptors?: string[]
 }
 
 const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' })
@@ -26,7 +28,6 @@ export function parseCollection(xml: string): BGGGame[] {
 
   return itemArray
     .filter((item: any) => item?.status?.['@_own'] === '1') // only owned games
-    .filter((item: any) => item['@_subtype'] !== 'boardgameexpansion') // exclude expansions
     .map((item: any) => {
       const stats = item.stats
       const rating = stats?.rating
@@ -40,6 +41,7 @@ export function parseCollection(xml: string): BGGGame[] {
         maxPlayers: Number(stats?.['@_maxplayers']) || 99,
         playTime: Number(stats?.['@_playingtime']) || 0,
         complexity: Number(rating?.averageweight?.['@_value']) || 0,
+        isExpansion: item['@_subtype'] === 'boardgameexpansion',
       }
     })
     .filter((g: BGGGame) => g.title !== 'Unknown')
@@ -52,7 +54,6 @@ export function parseCollectionCSV(csvText: string): BGGGame[] {
 
   return rows
     .filter(row => row.own === '1')
-    .filter(row => row.subtype !== 'boardgameexpansion') // exclude expansions
     .map(row => ({
       bggId: row.objectid ?? '',
       title: row.objectname ?? 'Unknown',
@@ -62,6 +63,7 @@ export function parseCollectionCSV(csvText: string): BGGGame[] {
       maxPlayers: Number(row.maxplayers) || 99,
       playTime: Number(row.playingtime) || 0,
       complexity: Number(row.avgweight) || 0,
+      isExpansion: row.subtype === 'boardgameexpansion',
     }))
     .filter(g => g.bggId && g.title !== 'Unknown')
 }

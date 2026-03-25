@@ -23,6 +23,7 @@ export async function GET() {
     maxPlayers: row.max_players ?? 99,
     playTime: row.play_time ?? 0,
     complexity: row.complexity ?? 0,
+    isExpansion: row.is_expansion ?? false,
   }))
 
   return NextResponse.json({ games })

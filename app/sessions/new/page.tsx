@@ -13,9 +13,12 @@ export default function NewSessionPage() {
   const [maxGames, setMaxGames] = useState(20)
   const [playerCountFilter, setPlayerCountFilter] = useState<number | ''>('')
   const [complexityFilters, setComplexityFilters] = useState<Set<string>>(new Set())
+  const [excludeExpansions, setExcludeExpansions] = useState(true)
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState('')
+  const [descriptorMap, setDescriptorMap] = useState<Record<string, string[]>>({})
+  const [descriptorsLoading, setDescriptorsLoading] = useState(false)
   const [showCustomForm, setShowCustomForm] = useState(false)
   const [customTitle, setCustomTitle] = useState('')
   const [customMin, setCustomMin] = useState('')
@@ -52,6 +55,23 @@ export default function NewSessionPage() {
       // Select all games by default
       setSelected(new Set(data.games.map((g: BGGGame) => g.bggId)))
       setLoading(false)
+
+      // Fetch descriptors in the background — games are usable immediately
+      setDescriptorsLoading(true)
+      fetch('/api/bgg/descriptors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          games: data.games.map((g: BGGGame) => ({
+            bggId: g.bggId,
+            title: g.title,
+            complexity: g.complexity,
+          })),
+        }),
+      })
+        .then(r => r.json())
+        .then(d => setDescriptorMap(d.descriptors ?? {}))
+        .finally(() => setDescriptorsLoading(false))
     }
 
     loadCollection()
@@ -66,6 +86,7 @@ export default function NewSessionPage() {
   }
 
   const visibleGames = games.filter(game => {
+    if (excludeExpansions && game.isExpansion) return false
     if (playerCountFilter !== '') {
       const n = Number(playerCountFilter)
       if (game.minPlayers > n || game.maxPlayers < n) return false
@@ -218,6 +239,21 @@ export default function NewSessionPage() {
               </button>
             )}
           </div>
+
+          {/* Expansions */}
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-300 w-28 flex-shrink-0">Expansions</span>
+            <button
+              onClick={() => setExcludeExpansions(prev => !prev)}
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
+                excludeExpansions
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              {excludeExpansions ? 'Hiding expansions' : 'Showing expansions'}
+            </button>
+          </div>
         </div>
 
         {/* Game selection */}
@@ -259,12 +295,10 @@ export default function NewSessionPage() {
                     : 'border-gray-700 bg-gray-800 opacity-50'
                 }`}
               >
-                {game.imageUrl ? (
+                {game.imageUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={game.imageUrl} alt={game.title} className="w-full aspect-square object-contain rounded mb-2" />
-                ) : isCustom ? (
-                  <div className="w-full aspect-square rounded mb-2 bg-gray-700 flex items-center justify-center text-3xl">🎲</div>
-                ) : null}
+                )}
                 <p className="text-sm font-medium leading-tight">{game.title}</p>
                 <p className="text-xs text-gray-400 mt-1">
                   {playersLabel}{game.playTime > 0 ? ` · ${game.playTime}min` : ''}
@@ -273,6 +307,17 @@ export default function NewSessionPage() {
                   <p className="text-xs text-gray-500 mt-0.5">Complexity {game.complexity.toFixed(1)}/5.0</p>
                 )}
                 {isCustom && <p className="text-xs text-indigo-400 mt-0.5">Custom</p>}
+                {descriptorMap[game.bggId]?.length > 0 ? (
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {descriptorMap[game.bggId].map(tag => (
+                      <span key={tag} className="px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 text-[10px]">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : descriptorsLoading && !isCustom ? (
+                  <p className="text-[10px] text-gray-600 mt-1">···</p>
+                ) : null}
               </button>
             )
           })}
