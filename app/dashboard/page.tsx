@@ -125,7 +125,7 @@ export default async function DashboardPage() {
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
-          <Logo className="h-8" />
+          <Logo className="h-20" />
           <div className="flex items-center gap-4">
             <Link href="/profile" className="text-gray-500 hover:text-white transition-colors" title="Profile">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

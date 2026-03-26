@@ -4,7 +4,7 @@ import Logo from './components/Logo'
 export default function HomePage() {
   return (
     <div className="hero-bg min-h-screen text-white flex flex-col items-center justify-center px-4 text-center">
-      <Logo className="h-16 mb-6" />
+      <Logo className="h-[160px] mb-6" />
       <h1 className="font-display text-6xl sm:text-7xl font-black tracking-tight leading-none mb-6">
         <span className="text-brand">Game Night,</span>
         <br />Decided.
