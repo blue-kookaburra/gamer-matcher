@@ -31,9 +31,9 @@ body {
   color: #f0f0f5;
 }
 
-/* Brand gradient — for landing page headline */
+/* Brand gradient — matches button gradient */
 .text-brand {
-  background: linear-gradient(135deg, #ff6b35 0%, #ff9a5c 100%);
+  background: linear-gradient(135deg, #ff6b35 0%, #ffaa00 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

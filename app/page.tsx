@@ -11,10 +11,10 @@ export default function HomePage() {
         <br />Decided.
       </h1>
       <p className="text-gray-400 text-lg max-w-sm mb-10 leading-relaxed">
-        Stop arguing about what to play. Everyone votes — Tinder-style.
+        Stop arguing about what to play. Upload your collection, host a session, and swipe to vote!
       </p>
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-3 mb-12">
         <Link
           href="/auth/signup"
           className="px-8 py-3 rounded-xl font-semibold btn-gradient"
@@ -28,6 +28,10 @@ export default function HomePage() {
           Sign In
         </Link>
       </div>
+
+      <p className="text-gray-600 text-xs max-w-xs leading-relaxed">
+        Tabletop Tally — Alpha. We make no guarantees about data security or availability. Use at your own risk.
+      </p>
     </div>
   )
 }

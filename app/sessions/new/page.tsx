@@ -13,6 +13,7 @@ export default function NewSessionPage() {
   const [maxGames, setMaxGames] = useState(10)
   const [playerCountFilter, setPlayerCountFilter] = useState<number | ''>('')
   const [complexityFilters, setComplexityFilters] = useState<Set<string>>(new Set())
+  const [playtimeFilters, setPlaytimeFilters] = useState<Set<string>>(new Set())
   const [excludeExpansions, setExcludeExpansions] = useState(true)
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
@@ -95,6 +96,12 @@ export default function NewSessionPage() {
       const c = game.complexity
       const band = c === 0 || c < 1.5 ? 'easy' : c < 2.5 ? 'medium' : 'hard'
       if (!complexityFilters.has(band)) return false
+    }
+    if (playtimeFilters.size > 0) {
+      const t = game.playTime
+      if (t === 0) return false // unknown play time — exclude when filtering
+      const slot = t <= 30 ? 'sweet' : t <= 60 ? 'entree' : 'main'
+      if (!playtimeFilters.has(slot)) return false
     }
     return true
   })
@@ -236,6 +243,45 @@ export default function NewSessionPage() {
             </div>
             {complexityFilters.size > 0 && (
               <button onClick={() => setComplexityFilters(new Set())} className="text-xs text-gray-400 hover:text-white">
+                Clear
+              </button>
+            )}
+          </div>
+
+          {/* Playtime */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-sm text-gray-300 w-28 flex-shrink-0">Playtime</span>
+            <div className="flex gap-2 flex-wrap">
+              {([
+                { key: 'sweet', label: '🍬 Sweet Treat', hint: '≤30m' },
+                { key: 'entree', label: '🍽 Entrée', hint: '31–60m' },
+                { key: 'main', label: '🍖 Main', hint: '>60m' },
+              ] as const).map(({ key, label, hint }) => {
+                const active = playtimeFilters.has(key)
+                return (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      setPlaytimeFilters(prev => {
+                        const next = new Set(prev)
+                        next.has(key) ? next.delete(key) : next.add(key)
+                        return next
+                      })
+                    }}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
+                      active
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    }`}
+                    title={hint}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+            {playtimeFilters.size > 0 && (
+              <button onClick={() => setPlaytimeFilters(new Set())} className="text-xs text-gray-400 hover:text-white">
                 Clear
               </button>
             )}
