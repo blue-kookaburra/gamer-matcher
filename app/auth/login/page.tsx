@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import Logo from '@/app/components/Logo'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -12,6 +13,12 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(true)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  // Clear any stale no_persist flag from previous sessions when the login page loads
+  useEffect(() => {
+    localStorage.removeItem('no_persist')
+    sessionStorage.removeItem('session_active')
+  }, [])
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -39,7 +46,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
       <div className="w-full max-w-sm">
-        <p className="font-display text-xs font-semibold uppercase tracking-widest text-gray-500 text-center mb-2">Tabletop Tally</p>
+        <div className="flex justify-center mb-4"><Logo className="h-12" /></div>
         <h1 className="font-display text-3xl font-black text-white text-center mb-1">Welcome back</h1>
         <p className="text-gray-500 text-sm text-center mb-8">Sign in to your host account</p>
 

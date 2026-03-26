@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import Logo from '@/app/components/Logo'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -19,6 +20,8 @@ export default function SignupPage() {
     setError('')
 
     const supabase = createClient()
+    // Sign out any existing session first so the new account's session takes effect
+    await supabase.auth.signOut()
     const { data, error } = await supabase.auth.signUp({ email, password })
 
     if (error) {
@@ -41,7 +44,7 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
       <div className="w-full max-w-sm">
-        <p className="font-display text-xs font-semibold uppercase tracking-widest text-gray-500 text-center mb-2">Tabletop Tally</p>
+        <div className="flex justify-center mb-4"><Logo className="h-12" /></div>
         <h1 className="font-display text-3xl font-black text-white text-center mb-1">Create account</h1>
         <p className="text-gray-500 text-sm text-center mb-8">Host your first game night</p>
 

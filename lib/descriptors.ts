@@ -28,7 +28,16 @@ async function callClaude(games: GameInput[]): Promise<Map<string, string[]>> {
       messages: [
         {
           role: 'user',
-          content: `For each board game below, give exactly 3 short descriptors (1-3 words each) that capture its feel, style, or standout trait. Use board game community vocabulary where it fits — e.g. "euro", "point salad", "take-that", "engine builder", "filler", "social deduction", "gateway", "party", "abstract", "coop", "heavy", "beautiful", "casual", "thinky". Return ONLY valid JSON with the game ID as the key:
+          content: `For each board game below, give exactly 3 short descriptors (1-3 words each) that capture its feel, style, or standout mechanic. Be specific and evocative — avoid generic or redundant tags.
+
+BANNED tags (do not use anything like these):
+- Player count references: "two-player", "solo", "solo-friendly", "party", "multiplayer", "4-player"
+- Playtime references: "quick", "filler", "long", "short game", "fast", "90 minutes"
+- Vague quality: "casual", "fun", "great", "classic", "popular", "good"
+
+Good tag vocabulary: "euro", "point salad", "take-that", "engine builder", "social deduction", "area control", "deck builder", "worker placement", "abstract", "coop", "heavy", "thinky", "push-your-luck", "asymmetric", "traitor", "hidden roles", "negotiation", "set collection", "tile placement", "auction", "dexterity", "legacy", "storytelling", "bluffing", "drafting", "deckless", "roll-and-write"
+
+Return ONLY valid JSON with the game ID as the key:
 
 ${gamesText}
 

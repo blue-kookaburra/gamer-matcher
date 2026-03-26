@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import Logo from '@/app/components/Logo'
 
 export default function JoinPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = use(params)
@@ -40,6 +41,15 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
     setJoining(true)
     setError('')
 
+    // Sign in anonymously so the guest has a real auth.uid() for RLS
+    const supabase = createClient()
+    const { error: authError } = await supabase.auth.signInAnonymously()
+    if (authError) {
+      setError('Could not connect. Please try again.')
+      setJoining(false)
+      return
+    }
+
     const res = await fetch('/api/join', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -76,7 +86,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
   return (
     <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center px-4">
       <div className="w-full max-w-sm text-center">
-        <p className="font-display text-xs font-semibold uppercase tracking-widest text-gray-500 mb-6">Tabletop Tally</p>
+        <div className="flex justify-center mb-6"><Logo className="h-12" /></div>
         <p className="text-gray-400 text-sm mb-1">Joining session</p>
         <p className="font-display font-black text-4xl text-indigo-400 tracking-widest mb-1">{code.toUpperCase()}</p>
         <p className="text-gray-500 text-sm mb-8">Enter your name to join</p>

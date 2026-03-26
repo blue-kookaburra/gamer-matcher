@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import Logo from '@/app/components/Logo'
 
 type SessionSummary = {
   id: string
@@ -9,6 +10,11 @@ type SessionSummary = {
   gameCount: number
   winners: string[]
   extraWinners: number
+}
+
+type TopGame = {
+  title: string
+  count: number
 }
 
 export default async function DashboardPage() {
@@ -24,30 +30,48 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .single()
 
-  // Fetch recent sessions and compute winners
-  const { data: sessions } = await supabase
+  // Fetch all session IDs for this host (needed for stats + recent list)
+  const { data: allSessionRows } = await supabase
     .from('sessions')
     .select('id, created_at, player_count')
     .eq('host_id', user.id)
     .order('created_at', { ascending: false })
-    .limit(5)
 
-  const sessionIds = sessions?.map(s => s.id) ?? []
+  const totalSessions = allSessionRows?.length ?? 0
+  const allSessionIds = allSessionRows?.map(s => s.id) ?? []
+  const recentSessions = allSessionRows?.slice(0, 5) ?? []
+  const recentSessionIds = recentSessions.map(s => s.id)
 
-  const [{ data: allGames }, { data: allVotes }] = await Promise.all([
+  // Fetch games + votes for recent sessions (for history panel)
+  // Fetch all session_games for top-games stat + library counts in parallel
+  const [
+    { data: recentGames },
+    { data: recentVotes },
+    { data: allSessionGames },
+    { data: libraryCounts },
+  ] = await Promise.all([
     supabase
       .from('session_games')
       .select('id, session_id, title')
-      .in('session_id', sessionIds),
+      .in('session_id', recentSessionIds),
     supabase
       .from('votes')
       .select('session_id, session_game_id, vote')
-      .in('session_id', sessionIds),
+      .in('session_id', recentSessionIds),
+    supabase
+      .from('session_games')
+      .select('bgg_game_id, title')
+      .in('session_id', allSessionIds),
+    supabase
+      .from('bgg_games')
+      .select('is_expansion')
+      .eq('user_id', user.id),
   ])
 
-  const summaries: SessionSummary[] = (sessions ?? []).map(session => {
-    const games = allGames?.filter(g => g.session_id === session.id) ?? []
-    const votes = allVotes?.filter(v => v.session_id === session.id) ?? []
+  // Compute recent session summaries
+  const summaries: SessionSummary[] = recentSessions.map(session => {
+    const games = recentGames?.filter(g => g.session_id === session.id) ?? []
+    const votes = recentVotes?.filter(v => v.session_id === session.id) ?? []
 
     const tallies: Record<string, { yes: number; maybe: number }> = {}
     for (const v of votes) {
@@ -75,6 +99,20 @@ export default async function DashboardPage() {
     }
   })
 
+  // Compute top 5 most-selected games across all sessions
+  const gameCounts: Record<string, { title: string; count: number }> = {}
+  for (const g of allSessionGames ?? []) {
+    if (!gameCounts[g.bgg_game_id]) gameCounts[g.bgg_game_id] = { title: g.title, count: 0 }
+    gameCounts[g.bgg_game_id].count++
+  }
+  const topGames: TopGame[] = Object.values(gameCounts)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
+
+  // Game library counts
+  const baseCount = libraryCounts?.filter(g => !g.is_expansion).length ?? 0
+  const expansionCount = libraryCounts?.filter(g => g.is_expansion).length ?? 0
+
   async function handleLogout() {
     'use server'
     const supabase = await createClient()
@@ -87,7 +125,7 @@ export default async function DashboardPage() {
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
-          <p className="font-display text-xs font-semibold uppercase tracking-widest text-gray-500">Tabletop Tally</p>
+          <Logo className="h-8" />
           <div className="flex items-center gap-4">
             <Link href="/profile" className="text-gray-500 hover:text-white transition-colors" title="Profile">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -102,7 +140,32 @@ export default async function DashboardPage() {
             </form>
           </div>
         </div>
-        <h1 className="font-display text-3xl font-black tracking-tight mb-8">Dashboard</h1>
+        <h1 className="font-display text-3xl font-black tracking-tight mb-6">Dashboard</h1>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          {/* Sessions hosted */}
+          <div className="bg-gray-900 border border-white/5 rounded-2xl p-4 text-center flex flex-col items-center justify-center">
+            <p className="font-display text-4xl font-black text-white leading-none">{totalSessions}</p>
+            <p className="text-xs text-gray-500 mt-2 uppercase tracking-widest font-semibold font-display">Sessions hosted</p>
+          </div>
+
+          {/* Most selected games */}
+          <div className="bg-gray-900 border border-white/5 rounded-2xl p-4">
+            <p className="text-xs text-gray-500 mb-2 uppercase tracking-widest font-semibold font-display">Most selected</p>
+            {totalSessions >= 5 ? (
+              <ul className="space-y-1.5">
+                {topGames.map(g => (
+                  <li key={g.title} className="text-sm text-gray-200 truncate leading-tight">{g.title}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-gray-600 leading-relaxed">
+                Host {5 - totalSessions} more session{5 - totalSessions !== 1 ? 's' : ''} to unlock
+              </p>
+            )}
+          </div>
+        </div>
 
         {/* New session CTA — prominent at top if collection is connected */}
         {(profile?.bgg_username || profile?.bgg_source === 'csv') ? (
@@ -163,18 +226,28 @@ export default async function DashboardPage() {
 
         {/* Game library — at bottom */}
         {(profile?.bgg_username || profile?.bgg_source === 'csv') && (
-          <div className="bg-gray-900 border border-white/5 rounded-2xl p-5">
+          <div className="bg-gray-900 border border-orange-500/40 rounded-2xl p-5">
             <h2 className="font-display font-semibold text-xs uppercase tracking-widest text-gray-400 mb-2">Game Library</h2>
             {profile?.bgg_username ? (
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-300">
-                  Connected as <span className="text-indigo-400 font-medium">{profile.bgg_username}</span>
-                </p>
+                <div>
+                  <p className="text-sm text-gray-300">
+                    Connected as <span className="text-indigo-400 font-medium">{profile.bgg_username}</span>
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {baseCount} game{baseCount !== 1 ? 's' : ''}{expansionCount > 0 ? ` and ${expansionCount} expansion${expansionCount !== 1 ? 's' : ''}` : ''}
+                  </p>
+                </div>
                 <Link href="/bgg/connect" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">Change</Link>
               </div>
             ) : (
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-300">Collection loaded from CSV</p>
+                <div>
+                  <p className="text-sm text-gray-300">Collection loaded from CSV</p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {baseCount} game{baseCount !== 1 ? 's' : ''}{expansionCount > 0 ? ` and ${expansionCount} expansion${expansionCount !== 1 ? 's' : ''}` : ''}
+                  </p>
+                </div>
                 <Link href="/bgg/connect" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">Change</Link>
               </div>
             )}
