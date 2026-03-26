@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, use } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion, animate, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
+import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 
 type SessionGame = {
@@ -189,11 +189,6 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
       {/* Card stack */}
       <div className="flex-1 flex items-center justify-center w-full py-2 min-h-0">
         <div className="relative w-full max-w-sm">
-          {/* Next card peeking behind */}
-          {index + 1 < games.length && (
-            <div className="absolute inset-x-0 bottom-0 h-full bg-gray-900 rounded-2xl scale-95 translate-y-2 opacity-60" />
-          )}
-
           <AnimatePresence>
             <SwipeCard
               key={game.gameId}
@@ -244,18 +239,13 @@ function SwipeCard({
   onVote: (vote: 'yes' | 'maybe' | 'no') => void
 }) {
   const x = useMotionValue(0)
-  const y = useMotionValue(8) // start at ghost offset, animated to 0 on mount
+  const y = useMotionValue(0)
   const rotate = useTransform(x, [-150, 150], [-12, 12])
   const yesOpacity = useTransform(x, [30, 100], [0, 1])
   const noOpacity = useTransform(x, [-100, -30], [1, 0])
   const maybeOpacity = useTransform(y, [-30, -100], [0, 1])
 
-  useEffect(() => {
-    const controls = animate(y, 0, { duration: 0.15, ease: 'easeOut' })
-    return controls.stop
-  }, [y])
-
-  function handleDragEnd(_: unknown, info: { offset: { x: number; y: number } }) {
+function handleDragEnd(_: unknown, info: { offset: { x: number; y: number } }) {
     if (info.offset.y < -80) onVote('maybe')
     else if (info.offset.x > 80) onVote('yes')
     else if (info.offset.x < -80) onVote('no')
