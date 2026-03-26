@@ -21,7 +21,7 @@ const instrumentSerif = Instrument_Serif({
 })
 
 export const metadata: Metadata = {
-  title: 'Gamer Matcher',
+  title: 'Tabletop Tally',
   description: 'Tinder-style board game voting for game night',
 }
 

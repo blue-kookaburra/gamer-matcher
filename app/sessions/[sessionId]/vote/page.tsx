@@ -260,13 +260,15 @@ function SwipeCard({
     <motion.div
       className="relative bg-gray-900 rounded-2xl overflow-hidden cursor-grab active:cursor-grabbing shadow-2xl shadow-black/60 select-none"
       style={{ x, y, rotate }}
+      initial={{ scale: 0.95, y: 8, opacity: 0.6 }}
+      animate={{ scale: 1, y: 0, opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
       drag
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       dragElastic={0.8}
       dragMomentum={false}
       onDragEnd={handleDragEnd}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.1 }}
     >
       {/* YES overlay */}
       <motion.div
@@ -319,15 +321,25 @@ function SwipeCard({
 
       {/* Title sits in the fade zone */}
       <div className="px-4 pb-5 -mt-10 relative z-10">
-        <h2 className="text-2xl font-bold leading-tight mb-1">{game.title}</h2>
-        <p className="text-gray-300 text-sm">
-          {game.minPlayers}–{game.maxPlayers} players · {game.playTime} min
-        </p>
-        {game.complexity > 0 && (
-          <p className="text-gray-400 text-xs mt-0.5">
-            Complexity {game.complexity.toFixed(1)}/5
-          </p>
-        )}
+        <h2 className="text-2xl font-bold leading-tight mb-2">{game.title}</h2>
+        <div className="flex gap-3">
+          <span className="flex items-center gap-1 text-gray-300 text-sm">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            {game.minPlayers}–{game.maxPlayers}
+          </span>
+          {game.playTime > 0 && (
+            <span className="flex items-center gap-1 text-gray-300 text-sm">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+              {game.playTime}m
+            </span>
+          )}
+          {game.complexity > 0 && (
+            <span className="flex items-center gap-1 text-gray-400 text-sm">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29l-1.43-1.43z"/></svg>
+              {game.complexity.toFixed(1)}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Swipe hint */}

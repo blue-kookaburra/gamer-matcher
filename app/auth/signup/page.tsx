@@ -41,7 +41,7 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
       <div className="w-full max-w-sm">
-        <p className="font-display text-xs font-semibold uppercase tracking-widest text-gray-500 text-center mb-2">Gamer Matcher</p>
+        <p className="font-display text-xs font-semibold uppercase tracking-widest text-gray-500 text-center mb-2">Tabletop Tally</p>
         <h1 className="font-display text-3xl font-black text-white text-center mb-1">Create account</h1>
         <p className="text-gray-500 text-sm text-center mb-8">Host your first game night</p>
 

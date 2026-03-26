@@ -10,7 +10,7 @@ export default function NewSessionPage() {
   const router = useRouter()
   const [games, setGames] = useState<BGGGame[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [maxGames, setMaxGames] = useState(20)
+  const [maxGames, setMaxGames] = useState(10)
   const [playerCountFilter, setPlayerCountFilter] = useState<number | ''>('')
   const [complexityFilters, setComplexityFilters] = useState<Set<string>>(new Set())
   const [excludeExpansions, setExcludeExpansions] = useState(true)
@@ -164,7 +164,7 @@ export default function NewSessionPage() {
         <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-white mb-6 transition-colors">
           ← Back to Dashboard
         </Link>
-        <h1 className="font-display text-2xl font-bold tracking-tight mb-1">New Game Night Session</h1>
+        <h1 className="font-display text-2xl font-bold tracking-tight mb-1">Which Games are on the Ballot?</h1>
         <p className="text-gray-400 text-sm mb-6">
           Choose which games to include. Only games that support the right player count will show during voting.
         </p>
@@ -301,12 +301,24 @@ export default function NewSessionPage() {
                   <img src={game.imageUrl} alt={game.title} className="w-full aspect-square object-contain rounded mb-2" />
                 )}
                 <p className="text-sm font-medium leading-tight">{game.title}</p>
-                <p className="text-xs text-gray-300 mt-1">
-                  {playersLabel}{game.playTime > 0 ? ` · ${game.playTime}min` : ''}
-                </p>
-                {game.complexity > 0 && (
-                  <p className="text-xs text-gray-400 mt-0.5">Complexity {game.complexity.toFixed(1)}/5.0</p>
-                )}
+                <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1">
+                  <span className="flex items-center gap-0.5 text-xs text-gray-300">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                    {playersLabel}
+                  </span>
+                  {game.playTime > 0 && (
+                    <span className="flex items-center gap-0.5 text-xs text-gray-300">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                      {game.playTime}m
+                    </span>
+                  )}
+                  {game.complexity > 0 && (
+                    <span className="flex items-center gap-0.5 text-xs text-gray-400">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29l-1.43-1.43z"/></svg>
+                      {game.complexity.toFixed(1)}
+                    </span>
+                  )}
+                </div>
                 {isCustom && <p className="text-xs text-indigo-400 mt-0.5">Custom</p>}
                 {descriptorMap[game.bggId]?.length > 0 ? (
                   <div className="flex flex-wrap gap-1 mt-1.5">
@@ -397,7 +409,7 @@ export default function NewSessionPage() {
           disabled={creating || selected.size === 0}
           className="w-full py-4 rounded-xl font-display font-bold tracking-wide btn-gradient"
         >
-          {creating ? 'Creating session...' : 'Create Session'}
+          {creating ? 'Rolling...' : "Let's Roll!"}
         </button>
       </div>
     </div>
