@@ -46,7 +46,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
       <div className="w-full max-w-sm">
-        <div className="flex justify-center mb-4"><Logo className="h-12" /></div>
+        <div className="flex justify-center mb-4"><Logo className="h-[120px]" /></div>
         <h1 className="font-display text-3xl font-black text-white text-center mb-1">Welcome back</h1>
         <p className="text-gray-500 text-sm text-center mb-8">Sign in to your host account</p>
 
