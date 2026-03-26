@@ -233,7 +233,7 @@ export default function NewSessionPage() {
             <span className="text-sm text-gray-300 w-28 flex-shrink-0">Complexity</span>
             <div className="flex gap-2">
               {(['easy', 'medium', 'hard'] as const).map(band => {
-                const labels = { easy: 'Easy', medium: 'Medium', hard: 'Hard' }
+                const labels = { easy: '🦋 Easy', medium: '🐶 Medium', hard: '🦁 Hard' }
                 const active = complexityFilters.has(band)
                 return (
                   <button
@@ -268,9 +268,9 @@ export default function NewSessionPage() {
             <span className="text-sm text-gray-300 w-28 flex-shrink-0">Playtime</span>
             <div className="flex gap-2 flex-wrap">
               {([
-                { key: 'sweet', label: '🍬 Sweet Treat', hint: '≤30m' },
-                { key: 'entree', label: '🍽 Entrée', hint: '31–60m' },
-                { key: 'main', label: '🍖 Main', hint: '>60m' },
+                { key: 'sweet', label: '🍟 Side', hint: '≤30m' },
+                { key: 'entree', label: '🥗 Entrée', hint: '31–60m' },
+                { key: 'main', label: '🍔 Main', hint: '>60m' },
               ] as const).map(({ key, label, hint }) => {
                 const active = playtimeFilters.has(key)
                 return (

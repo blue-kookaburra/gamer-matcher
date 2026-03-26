@@ -86,7 +86,7 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-gray-950 text-white px-4 py-8">
       <div className="max-w-lg mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center justify-between mb-2">
           <p className="font-display text-xs font-semibold uppercase tracking-widest text-gray-500">Tabletop Tally</p>
           <div className="flex items-center gap-4">
             <Link href="/profile" className="text-gray-500 hover:text-white transition-colors" title="Profile">
@@ -102,6 +102,7 @@ export default async function DashboardPage() {
             </form>
           </div>
         </div>
+        <h1 className="font-display text-3xl font-black tracking-tight mb-8">Dashboard</h1>
 
         {/* New session CTA — prominent at top if collection is connected */}
         {(profile?.bgg_username || profile?.bgg_source === 'csv') ? (
