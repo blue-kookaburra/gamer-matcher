@@ -260,9 +260,10 @@ function SwipeCard({
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.8}
+      dragMomentum={false}
       onDragEnd={handleDragEnd}
-      exit={{ scale: 0.9, opacity: 0 }}
-      transition={{ duration: 0.15 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.1 }}
     >
       {/* YES overlay */}
       <motion.div
