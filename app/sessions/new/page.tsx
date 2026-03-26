@@ -168,29 +168,44 @@ export default function NewSessionPage() {
   return (
     <div className="min-h-screen bg-gray-950 text-white px-4 py-8">
       <div className="max-w-2xl mx-auto">
-        <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-white mb-6 transition-colors">
-          ← Back to Dashboard
-        </Link>
-        <h1 className="font-display text-2xl font-bold tracking-tight mb-1">Which Games are on the Ballot?</h1>
+        <div className="flex items-center justify-between mb-6">
+          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-white transition-colors">
+            ← Back to Dashboard
+          </Link>
+          <Link href="/profile" className="text-gray-500 hover:text-white transition-colors" title="Profile">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+          </Link>
+        </div>
+        <h1 className="font-display text-2xl font-bold tracking-tight mb-1">Which games are on the ballot?</h1>
         <p className="text-gray-400 text-sm mb-6">
           Choose which games to include. Only games that support the right player count will show during voting.
         </p>
 
         {/* Max games slider */}
-        <div className="bg-gray-900 border border-white/5 rounded-xl p-4 mb-6">
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Max games to vote on: <span className="text-indigo-400 font-bold">{maxGames}</span>
-          </label>
-          <input
-            type="range"
-            min={5}
-            max={Math.min(50, selected.size || 50)}
-            value={maxGames}
-            onChange={e => setMaxGames(Number(e.target.value))}
-            className="w-full accent-indigo-500"
-          />
-          <p className="text-xs text-gray-400 mt-1">Games are shown in random order up to this limit.</p>
-        </div>
+        {(() => {
+          const maxTop = Math.min(50, selected.size || 50)
+          const fillPct = Math.round(((maxGames - 5) / Math.max(maxTop - 5, 1)) * 100)
+          return (
+            <div className="bg-gray-900 border border-white/5 rounded-xl p-4 mb-6">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Max games to vote on: <span className="text-indigo-400 font-bold">{maxGames}</span>
+              </label>
+              <input
+                type="range"
+                min={5}
+                max={maxTop}
+                value={maxGames}
+                onChange={e => setMaxGames(Number(e.target.value))}
+                className="w-full gradient-range"
+                style={{ background: `linear-gradient(to right, #ff6b35, #ffaa00 ${fillPct}%, #1e1e2a ${fillPct}%)` }}
+              />
+              <p className="text-xs text-gray-400 mt-1">Games are shown in random order up to this limit.</p>
+            </div>
+          )
+        })()}
 
         {/* Filters */}
         <div className="bg-gray-900 border border-white/5 rounded-xl p-4 mb-6 space-y-4">
@@ -455,7 +470,7 @@ export default function NewSessionPage() {
           disabled={creating || selected.size === 0}
           className="w-full py-4 rounded-xl font-display font-bold tracking-wide btn-gradient"
         >
-          {creating ? 'Rolling...' : "Let's Roll!"}
+          {creating ? 'Rolling...' : "Let's roll!"}
         </button>
       </div>
     </div>

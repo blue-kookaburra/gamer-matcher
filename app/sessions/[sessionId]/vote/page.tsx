@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, use } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
+import { motion, animate, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 
 type SessionGame = {
@@ -244,11 +244,16 @@ function SwipeCard({
   onVote: (vote: 'yes' | 'maybe' | 'no') => void
 }) {
   const x = useMotionValue(0)
-  const y = useMotionValue(0)
+  const y = useMotionValue(8) // start at ghost offset, animated to 0 on mount
   const rotate = useTransform(x, [-150, 150], [-12, 12])
   const yesOpacity = useTransform(x, [30, 100], [0, 1])
   const noOpacity = useTransform(x, [-100, -30], [1, 0])
   const maybeOpacity = useTransform(y, [-30, -100], [0, 1])
+
+  useEffect(() => {
+    const controls = animate(y, 0, { duration: 0.15, ease: 'easeOut' })
+    return controls.stop
+  }, [y])
 
   function handleDragEnd(_: unknown, info: { offset: { x: number; y: number } }) {
     if (info.offset.y < -80) onVote('maybe')
@@ -260,8 +265,8 @@ function SwipeCard({
     <motion.div
       className="relative bg-gray-900 rounded-2xl overflow-hidden cursor-grab active:cursor-grabbing shadow-2xl shadow-black/60 select-none"
       style={{ x, y, rotate }}
-      initial={{ scale: 0.95, y: 8, opacity: 0.6 }}
-      animate={{ scale: 1, y: 0, opacity: 1 }}
+      initial={{ scale: 0.95, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
       drag

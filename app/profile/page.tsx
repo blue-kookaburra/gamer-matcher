@@ -19,12 +19,12 @@ export default async function ProfilePage() {
     <div className="min-h-screen bg-gray-950 text-white px-4 py-8">
       <div className="max-w-lg mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
-          <Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors text-lg">
-            ←
+        <div className="flex items-center justify-between mb-8">
+          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-white transition-colors">
+            ← Back to Dashboard
           </Link>
-          <h1 className="text-2xl font-bold">Profile</h1>
         </div>
+        <h1 className="font-display text-2xl font-bold tracking-tight mb-6">Your Profile</h1>
 
         {/* Name */}
         <div className="bg-gray-800 rounded-xl p-5 mb-4">

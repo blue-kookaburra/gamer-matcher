@@ -63,6 +63,35 @@ body {
   box-shadow: 0 0 40px rgba(255, 107, 53, 0.5);
 }
 
+/* Gradient range input */
+input[type='range'].gradient-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 9999px;
+  cursor: pointer;
+  outline: none;
+}
+input[type='range'].gradient-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  margin-top: -6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+input[type='range'].gradient-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
 /* Landing page atmospheric background */
 .hero-bg {
   background: radial-gradient(ellipse at 50% -10%, rgba(255, 107, 53, 0.07) 0%, transparent 55%), #0a0a0f;

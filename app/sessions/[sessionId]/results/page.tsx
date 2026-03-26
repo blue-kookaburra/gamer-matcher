@@ -94,6 +94,17 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
   return (
     <div className="min-h-screen bg-gray-950 text-white px-4 py-8">
       <div className="max-w-md mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-white transition-colors">
+            ← Dashboard
+          </Link>
+          <Link href="/profile" className="text-gray-500 hover:text-white transition-colors" title="Profile">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+          </Link>
+        </div>
         <h1 className="font-display text-2xl font-bold text-center tracking-tight mb-1">Results</h1>
         <p className="text-gray-500 text-center text-sm mb-8">Ranked by yes votes</p>
 
