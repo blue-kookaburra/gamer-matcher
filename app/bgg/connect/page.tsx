@@ -158,7 +158,7 @@ export default function ConnectBGGPage() {
               <button
                 type="submit"
                 disabled={fetching}
-                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-lg font-semibold btn-glow"
+                className="px-5 py-2 rounded-lg font-semibold btn-gradient"
               >
                 {fetching ? 'Loading...' : 'Preview'}
               </button>
@@ -180,7 +180,7 @@ export default function ConnectBGGPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-lg font-semibold text-sm btn-glow"
+                className="px-5 py-2 rounded-lg font-semibold text-sm btn-gradient"
               >
                 {saving ? 'Saving...' : 'Use This Collection'}
               </button>

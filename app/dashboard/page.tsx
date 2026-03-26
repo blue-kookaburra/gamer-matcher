@@ -107,7 +107,7 @@ export default async function DashboardPage() {
         {(profile?.bgg_username || profile?.bgg_source === 'csv') ? (
           <Link
             href="/sessions/new"
-            className="flex flex-col items-center justify-center gap-3 w-full py-8 bg-indigo-600 hover:bg-indigo-700 rounded-2xl font-display font-bold tracking-wide btn-glow mb-6"
+            className="flex flex-col items-center justify-center gap-3 w-full py-8 rounded-2xl font-display font-bold tracking-wide btn-gradient mb-6"
           >
             <span className="text-4xl">🎲</span>
             <span className="text-lg">Start a New Game Night</span>

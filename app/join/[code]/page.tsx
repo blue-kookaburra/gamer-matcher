@@ -97,7 +97,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
           <button
             type="submit"
             disabled={joining || !name.trim()}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-xl font-semibold text-lg btn-glow"
+            className="w-full py-3 rounded-xl font-semibold text-lg btn-gradient"
           >
             {joining ? 'Joining...' : 'Join Game Night'}
           </button>

@@ -17,7 +17,7 @@ export default function HomePage() {
       <div className="flex flex-col sm:flex-row gap-3">
         <Link
           href="/auth/signup"
-          className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold btn-glow"
+          className="px-8 py-3 rounded-xl font-semibold btn-gradient"
         >
           Host a Game Night
         </Link>

@@ -39,7 +39,22 @@ body {
   background-clip: text;
 }
 
-/* Warm glow on primary CTA buttons */
+/* Gradient primary button — orange to amber */
+.btn-gradient {
+  background: linear-gradient(135deg, #ff6b35 0%, #ffaa00 100%);
+  box-shadow: 0 0 28px rgba(255, 107, 53, 0.35);
+  transition: filter 0.15s ease, box-shadow 0.2s ease;
+}
+.btn-gradient:hover:not(:disabled) {
+  filter: brightness(1.1);
+  box-shadow: 0 0 44px rgba(255, 107, 53, 0.55);
+}
+.btn-gradient:disabled {
+  opacity: 0.4;
+  filter: none;
+}
+
+/* Warm glow on secondary accent elements */
 .btn-glow {
   box-shadow: 0 0 24px rgba(255, 107, 53, 0.3);
   transition: box-shadow 0.2s ease, background-color 0.15s ease;

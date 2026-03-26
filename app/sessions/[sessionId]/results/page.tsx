@@ -189,7 +189,7 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
 
         <Link
           href="/dashboard"
-          className="block w-full text-center py-3 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-display font-bold btn-glow"
+          className="block w-full text-center py-3 rounded-xl font-display font-bold btn-gradient"
         >
           Back to Dashboard
         </Link>

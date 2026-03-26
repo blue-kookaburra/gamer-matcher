@@ -395,7 +395,7 @@ export default function NewSessionPage() {
         <button
           onClick={handleCreate}
           disabled={creating || selected.size === 0}
-          className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 rounded-xl font-display font-bold tracking-wide btn-glow"
+          className="w-full py-4 rounded-xl font-display font-bold tracking-wide btn-gradient"
         >
           {creating ? 'Creating session...' : 'Create Session'}
         </button>
