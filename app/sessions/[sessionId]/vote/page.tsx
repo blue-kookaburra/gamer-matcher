@@ -86,22 +86,30 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
     setWaiting(true)
     const supabase = createClient()
 
+    // Subscribe to session status changes — fires when the last vote sets status='done'
     const channel = supabase
-      .channel(`voting:${sessionId}`)
+      .channel(`session-done:${sessionId}`)
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'participants', filter: `session_id=eq.${sessionId}` },
-        async () => {
-          const { data } = await supabase
-            .from('participants')
-            .select('finished_at')
-            .eq('session_id', sessionId)
-
-          const allDone = data?.every(p => p.finished_at !== null)
-          if (allDone) router.push(`/sessions/${sessionId}/results`)
+        { event: 'UPDATE', schema: 'public', table: 'sessions', filter: `id=eq.${sessionId}` },
+        payload => {
+          if (payload.new.status === 'done') {
+            router.push(`/sessions/${sessionId}/results`)
+          }
         }
       )
-      .subscribe()
+      .subscribe(async () => {
+        // Catch-up check: if the session was already marked done before we subscribed,
+        // the realtime event was missed — check immediately after subscription is ready
+        const { data } = await supabase
+          .from('sessions')
+          .select('status')
+          .eq('id', sessionId)
+          .single()
+        if (data?.status === 'done') {
+          router.push(`/sessions/${sessionId}/results`)
+        }
+      })
 
     return () => { supabase.removeChannel(channel) }
   }, [sessionId, router])

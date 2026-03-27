@@ -105,5 +105,13 @@ export async function POST(
 
   const allDone = (finishedCount ?? 0) >= (totalParticipants ?? 1)
 
+  // Mark session as done so the waiting screen can reliably detect completion
+  if (allDone) {
+    await supabase
+      .from('sessions')
+      .update({ status: 'done' })
+      .eq('id', sessionId)
+  }
+
   return NextResponse.json({ myDone, allDone })
 }
