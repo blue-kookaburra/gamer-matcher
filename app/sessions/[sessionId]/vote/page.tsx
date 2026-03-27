@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, use } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion, animate, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
+import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 
 type SessionGame = {
@@ -260,14 +260,19 @@ function SwipeCard({
   const yesOpacity = useTransform(x, [30, 100], [0, 1])
   const noOpacity = useTransform(x, [-100, -30], [1, 0])
   const maybeOpacity = useTransform(y, [-30, -100], [0, 1])
+  // Track swipe direction so the exit animation flies the card out correctly
+  const [exitPos, setExitPos] = useState({ x: 0, y: 0 })
 
-function handleDragEnd(_: unknown, info: { offset: { x: number; y: number } }) {
+  function handleDragEnd(_: unknown, info: { offset: { x: number; y: number } }) {
     if (info.offset.y < -80) {
-      animate(y, -500, { duration: 0.2 }).then(() => onVote('maybe'))
+      setExitPos({ x: 0, y: -500 })
+      onVote('maybe')
     } else if (info.offset.x > 80) {
-      animate(x, 600, { duration: 0.2 }).then(() => onVote('yes'))
+      setExitPos({ x: 600, y: 0 })
+      onVote('yes')
     } else if (info.offset.x < -80) {
-      animate(x, -600, { duration: 0.2 }).then(() => onVote('no'))
+      setExitPos({ x: -600, y: 0 })
+      onVote('no')
     }
   }
 
@@ -277,7 +282,7 @@ function handleDragEnd(_: unknown, info: { offset: { x: number; y: number } }) {
       style={{ x, y, rotate }}
       initial={{ scale: 0.95, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0 } }}
+      exit={{ x: exitPos.x, y: exitPos.y, opacity: 0, transition: { duration: 0.2 } }}
       transition={{ duration: 0.15 }}
       drag
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
