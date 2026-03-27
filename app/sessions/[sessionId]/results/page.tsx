@@ -1,9 +1,7 @@
 'use client'
 
 import { useState, useEffect, use } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
 
 type RankedGame = {
   gameId: string
@@ -19,11 +17,8 @@ type RankedGame = {
 
 export default function ResultsPage({ params }: { params: Promise<{ sessionId: string }> }) {
   const { sessionId } = use(params)
-  const router = useRouter()
   const [games, setGames] = useState<RankedGame[]>([])
   const [loading, setLoading] = useState(true)
-  const [isHost, setIsHost] = useState(false)
-  const [revoting, setRevoting] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -34,49 +29,6 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
     }
     load()
   }, [sessionId])
-
-  useEffect(() => {
-    const supabase = createClient()
-
-    async function checkHost() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: session } = await supabase
-        .from('sessions')
-        .select('host_id')
-        .eq('id', sessionId)
-        .single()
-      setIsHost(session?.host_id === user.id)
-    }
-    checkHost()
-
-    // All participants on this page redirect when the host triggers a re-vote
-    const channel = supabase
-      .channel(`revote:${sessionId}`)
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'sessions', filter: `id=eq.${sessionId}` },
-        payload => {
-          if (payload.new.status === 'revoting') {
-            router.push(`/sessions/${sessionId}/vote`)
-          }
-        }
-      )
-      .subscribe()
-
-    return () => { supabase.removeChannel(channel) }
-  }, [sessionId, router])
-
-  async function handleRevote() {
-    setRevoting(true)
-    const winnerIds = winners.map(w => w.gameId)
-    await fetch(`/api/sessions/${sessionId}/revote`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ gameIds: winnerIds }),
-    })
-    // Redirect is triggered by the realtime listener above for all participants
-  }
 
   if (loading) {
     return (
@@ -175,17 +127,6 @@ export default function ResultsPage({ params }: { params: Promise<{ sessionId: s
                 </div>
               </div>
             ))}
-            {isHost && (
-              <div className="px-4 pb-4 border-t border-indigo-800/50">
-                <button
-                  onClick={handleRevote}
-                  disabled={revoting}
-                  className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-xl text-sm font-semibold transition-colors mt-3"
-                >
-                  {revoting ? 'Starting re-vote...' : '🔁 Re-vote with just these winners'}
-                </button>
-              </div>
-            )}
           </div>
         )}
 
