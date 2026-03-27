@@ -45,9 +45,8 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
     const supabase = createClient()
     const { error: authError } = await supabase.auth.signInAnonymously()
     if (authError) {
-      setError('Could not connect. Please try again.')
-      setJoining(false)
-      return
+      // Non-fatal: proceed without an auth session (voting RLS may still work via participantId)
+      console.warn('Anonymous sign-in unavailable:', authError.message)
     }
 
     const res = await fetch('/api/join', {
