@@ -24,10 +24,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'This session has already started.' }, { status: 400 })
   }
 
+  // Attach user_id if the guest is signed in (e.g. anonymous auth)
+  const { data: { user } } = await supabase.auth.getUser()
+
   // Add the guest as a participant
   const { data: participant, error: participantError } = await supabase
     .from('participants')
-    .insert({ session_id: session.id, name: name.trim(), is_host: false })
+    .insert({
+      session_id: session.id,
+      name: name.trim(),
+      is_host: false,
+      ...(user ? { user_id: user.id } : {}),
+    })
     .select()
     .single()
 
