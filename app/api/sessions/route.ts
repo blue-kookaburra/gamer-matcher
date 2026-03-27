@@ -53,10 +53,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to save games' }, { status: 500 })
   }
 
-  // Add the host as a participant
+  // Add the host as a participant using their profile name
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('name')
+    .eq('id', user.id)
+    .single()
+
   await supabase.from('participants').insert({
     session_id: session.id,
-    name: 'Host',
+    name: profile?.name ?? 'Host',
     is_host: true,
     user_id: user.id,
   })
