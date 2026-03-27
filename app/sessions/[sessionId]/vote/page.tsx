@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, use } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
+import { motion, animate, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 
 type SessionGame = {
@@ -41,7 +41,7 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
           .eq('session_id', sessionId)
           .eq('user_id', user.id)
           .single()
-        pid = p?.id ?? null
+        pid = p?.id ?? localStorage.getItem('participantId')
       } else {
         pid = localStorage.getItem('participantId')
       }
@@ -86,7 +86,17 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
     setWaiting(true)
     const supabase = createClient()
 
-    // Subscribe to session status changes — fires when the last vote sets status='done'
+    async function checkAndNavigate() {
+      const { data } = await supabase
+        .from('sessions')
+        .select('status')
+        .eq('id', sessionId)
+        .single()
+      if (data?.status === 'done') {
+        router.push(`/sessions/${sessionId}/results`)
+      }
+    }
+
     const channel = supabase
       .channel(`session-done:${sessionId}`)
       .on(
@@ -98,20 +108,18 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
           }
         }
       )
-      .subscribe(async () => {
-        // Catch-up check: if the session was already marked done before we subscribed,
-        // the realtime event was missed — check immediately after subscription is ready
-        const { data } = await supabase
-          .from('sessions')
-          .select('status')
-          .eq('id', sessionId)
-          .single()
-        if (data?.status === 'done') {
-          router.push(`/sessions/${sessionId}/results`)
-        }
+      .subscribe(status => {
+        // Catch-up: if session was already done before subscription was ready
+        if (status === 'SUBSCRIBED') checkAndNavigate()
       })
 
-    return () => { supabase.removeChannel(channel) }
+    // Polling fallback — fires every 3 s in case realtime doesn't work
+    const poll = setInterval(checkAndNavigate, 3000)
+
+    return () => {
+      supabase.removeChannel(channel)
+      clearInterval(poll)
+    }
   }, [sessionId, router])
 
   async function submitVote(vote: 'yes' | 'maybe' | 'no') {
@@ -254,9 +262,13 @@ function SwipeCard({
   const maybeOpacity = useTransform(y, [-30, -100], [0, 1])
 
 function handleDragEnd(_: unknown, info: { offset: { x: number; y: number } }) {
-    if (info.offset.y < -80) onVote('maybe')
-    else if (info.offset.x > 80) onVote('yes')
-    else if (info.offset.x < -80) onVote('no')
+    if (info.offset.y < -80) {
+      animate(y, -500, { duration: 0.2 }).then(() => onVote('maybe'))
+    } else if (info.offset.x > 80) {
+      animate(x, 600, { duration: 0.2 }).then(() => onVote('yes'))
+    } else if (info.offset.x < -80) {
+      animate(x, -600, { duration: 0.2 }).then(() => onVote('no'))
+    }
   }
 
   return (
@@ -265,7 +277,7 @@ function handleDragEnd(_: unknown, info: { offset: { x: number; y: number } }) {
       style={{ x, y, rotate }}
       initial={{ scale: 0.95, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      exit={{ opacity: 0 }}
+      exit={{ opacity: 0, transition: { duration: 0 } }}
       transition={{ duration: 0.15 }}
       drag
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
