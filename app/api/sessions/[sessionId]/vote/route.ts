@@ -28,24 +28,7 @@ export async function POST(
     .single()
 
   if (!participant) {
-    // Debug: check if the participant exists at all (wrong session?) and whether admin key is working
-    const { data: anyParticipant, error: adminError } = await adminSupabase
-      .from('participants')
-      .select('id, session_id')
-      .eq('id', participantId)
-      .single()
-
-    return NextResponse.json({
-      error: 'Participant not found in this session',
-      _debug: {
-        participantId,
-        sessionId,
-        adminKeySet: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-        adminError: adminError?.message ?? null,
-        participantExistsInOtherSession: !!anyParticipant,
-        participantActualSessionId: anyParticipant?.session_id ?? null,
-      },
-    }, { status: 403 })
+    return NextResponse.json({ error: 'Participant not found in this session' }, { status: 403 })
   }
 
   // Resolve bgg_game_id → session_games UUID
