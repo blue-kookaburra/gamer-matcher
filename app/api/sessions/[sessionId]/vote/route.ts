@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function POST(
   request: Request,
@@ -7,6 +8,7 @@ export async function POST(
 ) {
   const { sessionId } = await params
   const supabase = await createClient()
+  const adminSupabase = createAdminClient()
 
   const body = await request.json()
   const { participantId, bggGameId, vote } = body
@@ -91,14 +93,16 @@ export async function POST(
       .eq('id', participantId)
   }
 
-  // Check if all participants in the session are done
-  const { count: finishedCount } = await supabase
+  // Check if all participants in the session are done.
+  // Use adminSupabase to bypass RLS — the guest's auth can only see their own row,
+  // which would make totalParticipants=1 and trigger a false allDone.
+  const { count: finishedCount } = await adminSupabase
     .from('participants')
     .select('*', { count: 'exact', head: true })
     .eq('session_id', sessionId)
     .not('finished_at', 'is', null)
 
-  const { count: totalParticipants } = await supabase
+  const { count: totalParticipants } = await adminSupabase
     .from('participants')
     .select('*', { count: 'exact', head: true })
     .eq('session_id', sessionId)

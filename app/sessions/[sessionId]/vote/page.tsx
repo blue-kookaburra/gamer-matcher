@@ -25,6 +25,7 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
   const [loading, setLoading] = useState(true)
   const [waiting, setWaiting] = useState(false)
   const [error, setError] = useState('')
+  const [descriptorMap, setDescriptorMap] = useState<Record<string, string[]>>({})
   const votingRef = useRef(false)
 
   useEffect(() => {
@@ -77,6 +78,22 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
 
       setGames(filtered)
       setLoading(false)
+
+      // Fetch descriptors in the background — cards are usable immediately without them
+      const gameInputs = (gamesData ?? [])
+        .filter(g => !g.bgg_game_id.startsWith('custom-'))
+        .map(g => ({ bggId: g.bgg_game_id, title: g.title, complexity: g.complexity ?? 0 }))
+
+      if (gameInputs.length > 0) {
+        fetch('/api/bgg/descriptors', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ games: gameInputs }),
+        })
+          .then(r => r.json())
+          .then(d => setDescriptorMap(d.descriptors ?? {}))
+          .catch(() => {})
+      }
     }
 
     init()
@@ -209,6 +226,7 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
             <SwipeCard
               key={game.gameId}
               game={game}
+              descriptors={descriptorMap[game.gameId] ?? []}
               onVote={submitVote}
             />
           </AnimatePresence>
@@ -249,9 +267,11 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
 
 function SwipeCard({
   game,
+  descriptors,
   onVote,
 }: {
   game: SessionGame
+  descriptors: string[]
   onVote: (vote: 'yes' | 'maybe' | 'no') => void
 }) {
   const x = useMotionValue(0)
@@ -356,6 +376,15 @@ function SwipeCard({
             </span>
           )}
         </div>
+        {descriptors.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {descriptors.map(tag => (
+              <span key={tag} className="px-1.5 py-0.5 rounded bg-gray-800 text-gray-300 text-[10px]">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Swipe hint */}
