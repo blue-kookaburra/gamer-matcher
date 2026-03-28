@@ -60,6 +60,22 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
 
       const playerCount = sessionData?.player_count ?? 0
 
+      // Start descriptor fetch in parallel with game filtering — descriptors are cached so this is fast
+      const gameInputs = (gamesData ?? [])
+        .filter(g => !g.bgg_game_id.startsWith('custom-'))
+        .map(g => ({ bggId: g.bgg_game_id, title: g.title, complexity: g.complexity ?? 0 }))
+
+      const descriptorPromise = gameInputs.length > 0
+        ? fetch('/api/bgg/descriptors', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ games: gameInputs }),
+          })
+            .then(r => r.json())
+            .then(d => (d.descriptors ?? {}) as Record<string, string[]>)
+            .catch(() => ({}) as Record<string, string[]>)
+        : Promise.resolve({} as Record<string, string[]>)
+
       const filtered = (gamesData ?? [])
         .filter(g => {
           if (playerCount === 0) return true
@@ -76,24 +92,11 @@ export default function VotePage({ params }: { params: Promise<{ sessionId: stri
           complexity: g.complexity ?? 0,
         }))
 
+      // Await descriptors so tags appear the moment cards do
+      const descriptors = await descriptorPromise
+      setDescriptorMap(descriptors)
       setGames(filtered)
       setLoading(false)
-
-      // Fetch descriptors in the background — cards are usable immediately without them
-      const gameInputs = (gamesData ?? [])
-        .filter(g => !g.bgg_game_id.startsWith('custom-'))
-        .map(g => ({ bggId: g.bgg_game_id, title: g.title, complexity: g.complexity ?? 0 }))
-
-      if (gameInputs.length > 0) {
-        fetch('/api/bgg/descriptors', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ games: gameInputs }),
-        })
-          .then(r => r.json())
-          .then(d => setDescriptorMap(d.descriptors ?? {}))
-          .catch(() => {})
-      }
     }
 
     init()

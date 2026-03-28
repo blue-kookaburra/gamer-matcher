@@ -6,8 +6,6 @@ type GameInput = { bggId: string; title: string; complexity: number }
 
 export async function POST(request: Request) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { games } = await request.json() as { games: GameInput[] }
   const eligible = (games ?? []).filter(g => !g.bggId.startsWith('custom-'))
@@ -15,7 +13,7 @@ export async function POST(request: Request) {
 
   const bggIds = eligible.map(g => g.bggId)
 
-  // Check the shared cache first
+  // Check the shared cache first — readable by anyone (guests included)
   const { data: cached } = await supabase
     .from('game_descriptors')
     .select('bgg_id, descriptors')
@@ -28,10 +26,13 @@ export async function POST(request: Request) {
     cachedIds.add(row.bgg_id)
   }
 
-  // Generate for anything not yet cached
+  // Generation requires auth — guests get cache-only
   const missingGames = eligible.filter(g => !cachedIds.has(g.bggId))
 
   if (missingGames.length > 0) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ descriptors: result })
+
     const generated = await generateDescriptors(missingGames)
 
     if (generated.size > 0) {
