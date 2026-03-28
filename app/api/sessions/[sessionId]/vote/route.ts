@@ -17,8 +17,10 @@ export async function POST(
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  // Verify this participant belongs to this session
-  const { data: participant } = await supabase
+  // Verify this participant belongs to this session.
+  // Use adminSupabase — the user client may be blocked by RLS depending on the
+  // session's current status, causing a false 403 even for valid participants.
+  const { data: participant } = await adminSupabase
     .from('participants')
     .select('id, session_id')
     .eq('id', participantId)
